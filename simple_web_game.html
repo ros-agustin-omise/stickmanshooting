@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stickman Shooting Gallery - Ultra Smooth Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-container {
+            position: relative;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+        
+        canvas {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 70%, #98FB98 100%);
+            cursor: crosshair;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: block;
+        }
+        
+        .stickman-container {
+            position: absolute;
+            top: 13px; /* Account for container padding + border */
+            left: 13px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .stickman-svg {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            transform-origin: center;
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .weapon-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .weapon-btn {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .weapon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .weapon-btn.active {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+        
+        .game-ui {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .instructions {
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0.8;
+        }
+        
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        .start-btn, .restart-btn {
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+        
+        .start-btn:hover, .restart-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .high-scores {
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .input-name {
+            padding: 10px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="weapon-buttons">
+            <button class="weapon-btn active" data-weapon="pistol">🔫 Pistol (1)</button>
+            <button class="weapon-btn" data-weapon="shotgun">💥 Shotgun (2)</button>
+            <button class="weapon-btn" data-weapon="rifle">🎯 Rifle (3)</button>
+            <button class="weapon-btn" data-weapon="machineGun">⚡ Machine Gun (4)</button>
+        </div>
+    </div>
+    
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="stickman-container" id="stickmanContainer"></div>
+        
+        <div class="start-screen" id="startScreen">
+            <h1 style="font-size: 36px; margin-bottom: 20px;">🎯 Stickman Shooting Gallery</h1>
+            <h2 style="font-size: 20px; margin-bottom: 10px;">Ultra Smooth SVG Edition</h2>
+            <p style="text-align: center; max-width: 400px;">
+                Experience buttery-smooth SVG-powered animations!<br/>
+                Advanced keyframe interpolation for realistic movement.<br/>
+                Professional-grade stickman physics engine.
+            </p>
+            <button class="start-btn" onclick="startGame()">🚀 Start Game</button>
+        </div>
+        
+        <div class="game-over-screen" id="gameOverScreen" style="display: none;">
+            <h2>🎯 Game Over!</h2>
+            <div id="finalScore"></div>
+            <input type="text" id="playerName" class="input-name" placeholder="Enter your name" maxlength="15">
+            <button class="restart-btn" onclick="restartGame()">🔄 Play Again</button>
+            <div class="high-scores" id="highScores"></div>
+        </div>
+    </div>
+    
+    <div class="game-ui">
+        <div class="score">Score: <span id="scoreDisplay">0</span></div>
+        <div class="instructions">
+            Move mouse to aim • Click to shoot • Use weapon hotkeys (1-4)
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const stickmanContainer = document.getElementById('stickmanContainer');
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        
+                 // SVG Stickman Animation Data (inspired by madeindjs/stickman)
+         const STICKMAN_ANIMATIONS = {
+             running: {
+                 duration: 0.6,
+                 keyframes: [
+                     // Frame 1 - Left foot forward
+                     { head: [30, 15], body: [30, 40], armL: [18, 35], armR: [42, 35], legL: [20, 60], legR: [40, 60] },
+                     // Frame 2 - Mid stride
+                     { head: [30, 14], body: [30, 39], armL: [22, 38], armR: [38, 32], legL: [25, 58], legR: [35, 62] },
+                     // Frame 3 - Right foot forward  
+                     { head: [30, 15], body: [30, 40], armL: [42, 35], armR: [18, 35], legL: [40, 60], legR: [20, 60] },
+                     // Frame 4 - Mid stride opposite
+                     { head: [30, 14], body: [30, 39], armL: [38, 32], armR: [22, 38], legL: [35, 62], legR: [25, 58] }
+                 ]
+             },
+             kneeling: {
+                 duration: 0.8,
+                 keyframes: [
+                     // Frame 1 - Kneeling left
+                     { head: [30, 20], body: [30, 42], armL: [18, 38], armR: [42, 36], legL: [22, 52], legR: [38, 48] },
+                     // Frame 2 - Mid kneel
+                     { head: [30, 19], body: [30, 41], armL: [20, 40], armR: [40, 38], legL: [20, 54], legR: [40, 46] },
+                     // Frame 3 - Kneeling right
+                     { head: [30, 20], body: [30, 42], armL: [42, 36], armR: [18, 38], legL: [38, 48], legR: [22, 52] },
+                     // Frame 4 - Back to center
+                     { head: [30, 19], body: [30, 41], armL: [20, 40], armR: [40, 38], legL: [20, 54], legR: [40, 46] }
+                 ]
+             },
+             crawling: {
+                 duration: 1.0,
+                 keyframes: [
+                     // Frame 1 - Left arm forward
+                     { head: [30, 25], body: [30, 45], armL: [15, 42], armR: [45, 40], legL: [18, 52], legR: [42, 50] },
+                     // Frame 2 - Mid crawl
+                     { head: [30, 24], body: [30, 44], armL: [20, 40], armR: [40, 42], legL: [22, 50], legR: [38, 52] },
+                     // Frame 3 - Right arm forward  
+                     { head: [30, 25], body: [30, 45], armL: [45, 40], armR: [15, 42], legL: [42, 50], legR: [18, 52] },
+                     // Frame 4 - Back to mid
+                     { head: [30, 24], body: [30, 44], armL: [40, 42], armR: [20, 40], legL: [38, 52], legR: [22, 50] }
+                 ]
+             }
+         };
+        
+        // Game state
+        let gameActive = false;
+        let score = 0;
+        let targets = [];
+        let particles = [];
+        let animationId;
+        let gameTimer;
+        let currentWeapon = 'pistol';
+        let lastShotTime = 0;
+        let mouseX = 0;
+        let mouseY = 0;
+        
+        // Weapon definitions
+        const weapons = {
+            pistol: { cooldown: 400, damage: 50, color: '#FFD700', pellets: 1 },
+            shotgun: { cooldown: 1000, damage: 30, color: '#FF4500', pellets: 5 },
+            rifle: { cooldown: 800, damage: 100, color: '#00FF00', pellets: 1 },
+            machineGun: { cooldown: 150, damage: 25, color: '#FF00FF', pellets: 1 }
+        };
+        
+        class SVGStickman {
+                         constructor(x, y, scale = 1) {
+                 this.x = x;
+                 this.y = y;
+                 this.scale = scale;
+                 this.maxHealth = 6; // Fixed health for predictable states
+                 this.health = this.maxHealth;
+                 this.state = "standing";
+                 this.isMoving = Math.random() < 0.8;
+                 this.vx = this.isMoving ? (Math.random() < 0.5 ? -0.3 : 0.3) : 0;
+                 this.age = 0;
+                 this.lifetime = 12000 + Math.random() * 5000; // Much longer lifetime
+                 this.active = true;
+                 this.fallAngle = 0;
+                 this.animationNeedsUpdate = false;
+                 
+                 this.createElement();
+                 this.startAnimation();
+             }
+            
+                         createElement() {
+                 this.element = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                 this.element.classList.add('stickman-svg');
+                 this.element.setAttribute('viewBox', '0 0 100 120');
+                 this.element.setAttribute('width', '60');
+                 this.element.setAttribute('height', '80');
+                 
+                 // Body color based on health
+                 const healthPercent = this.health / this.maxHealth;
+                 let color = '#2c3e50';
+                 if (healthPercent <= 0.66 && healthPercent > 0.33) color = '#e67e22';
+                 else if (healthPercent <= 0.33) color = '#c0392b';
+                 
+                 this.element.innerHTML = `
+                     <g stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round">
+                         <!-- Mature head - slightly larger -->
+                         <circle id="head" cx="50" cy="15" r="12"/>
+                         
+                         <!-- Stronger body -->
+                         <line id="body" x1="50" y1="27" x2="50" y2="65"/>
+                         
+                         <!-- Left arm with elbow -->
+                         <line id="armL1" x1="50" y1="35" x2="38" y2="45"/>
+                         <line id="armL2" x1="38" y1="45" x2="30" y2="58"/>
+                         
+                         <!-- Right arm with elbow -->
+                         <line id="armR1" x1="50" y1="35" x2="62" y2="45"/>
+                         <line id="armR2" x1="62" y1="45" x2="70" y2="58"/>
+                         
+                         <!-- Left leg with knee -->
+                         <line id="legL1" x1="50" y1="65" x2="45" y2="80"/>
+                         <line id="legL2" x1="45" y1="80" x2="40" y2="95"/>
+                         
+                         <!-- Right leg with knee -->
+                         <line id="legR1" x1="50" y1="65" x2="55" y2="80"/>
+                         <line id="legR2" x1="55" y1="80" x2="60" y2="95"/>
+                         
+                         <!-- Left foot -->
+                         <ellipse id="footL" cx="40" cy="98" rx="8" ry="4" fill="${color}"/>
+                         
+                         <!-- Right foot -->
+                         <ellipse id="footR" cx="60" cy="98" rx="8" ry="4" fill="${color}"/>
+                     </g>
+                     
+                     <!-- Health Bar -->
+                     <g id="healthBar">
+                         <rect x="20" y="2" width="60" height="6" fill="rgba(0,0,0,0.6)" rx="3"/>
+                         <rect id="health-fill" x="20" y="2" width="60" height="6" fill="#27ae60" rx="3"/>
+                     </g>
+                 `;
+                 
+                 this.updatePosition();
+                 stickmanContainer.appendChild(this.element);
+             }
+            
+                         startAnimation() {
+                 this.updateAnimation();
+             }
+             
+             updateAnimation() {
+                 if (!this.element) return;
+                 
+                 // Clear any existing animations first
+                 this.clearAnimations();
+                 
+                 let duration, animationType;
+                 
+                 // Choose animation based on state and movement
+                 if (this.state === 'crawling') {
+                     duration = 1200; // 1.2 seconds
+                     animationType = 'crawling';
+                 } else if (this.state === 'kneeling') {
+                     duration = 1000; // 1 second
+                     animationType = 'kneeling';
+                 } else if (this.isMoving) {
+                     duration = 800; // 0.8 seconds  
+                     animationType = 'running';
+                 } else {
+                     // Standing still
+                     return;
+                 }
+                 
+                 this.startJSAnimation(animationType, duration);
+             }
+             
+             startJSAnimation(type, duration) {
+                 // Cancel any existing animation
+                 if (this.animationTimer) {
+                     clearInterval(this.animationTimer);
+                 }
+                 
+                 const frames = 60; // frames per second
+                 const totalFrames = (duration / 1000) * frames;
+                 let currentFrame = 0;
+                 
+                 this.animationTimer = setInterval(() => {
+                     currentFrame = (currentFrame + 1) % totalFrames;
+                     const progress = currentFrame / totalFrames;
+                     
+                     this.updateStickmanPose(type, progress);
+                 }, 1000 / frames);
+             }
+             
+             updateStickmanPose(type, progress) {
+                 if (!this.element) return;
+                 
+                 // Get stickman elements with joints and feet
+                 const head = this.element.querySelector('#head');
+                 const body = this.element.querySelector('#body');
+                 const armL1 = this.element.querySelector('#armL1');
+                 const armL2 = this.element.querySelector('#armL2');
+                 const armR1 = this.element.querySelector('#armR1');
+                 const armR2 = this.element.querySelector('#armR2');
+                 const legL1 = this.element.querySelector('#legL1');
+                 const legL2 = this.element.querySelector('#legL2');
+                 const legR1 = this.element.querySelector('#legR1');
+                 const legR2 = this.element.querySelector('#legR2');
+                 const footL = this.element.querySelector('#footL');
+                 const footR = this.element.querySelector('#footR');
+                 
+                 if (!head || !body || !armL1 || !armL2 || !armR1 || !armR2 || !legL1 || !legL2 || !legR1 || !legR2 || !footL || !footR) return;
+                 
+                 const cycle = progress * 2 * Math.PI;
+                 
+                 if (type === 'running') {
+                     // Simple walking with joint movement
+                     const step = Math.sin(cycle) * 6; // Reduced swing for joints
+                     const armSwing = Math.sin(cycle) * 5;
+                     const headBob = Math.sin(cycle * 2) * 1;
+                     
+                     // Head with subtle bob (adjusted for larger head)
+                     head.setAttribute('cy', 15 + headBob);
+                     
+                     // Body stays straight (adjusted for larger head)
+                     body.setAttribute('y1', 27 + headBob);
+                     body.setAttribute('y2', 65);
+                     
+                     // Left arm swing (shoulder to elbow, elbow to hand)
+                     const leftArmPhase = Math.sin(cycle + Math.PI) * armSwing;
+                     armL1.setAttribute('x2', 38 + leftArmPhase * 0.8);
+                     armL1.setAttribute('y2', 45 + leftArmPhase * 0.3);
+                     armL2.setAttribute('x1', 38 + leftArmPhase * 0.8);
+                     armL2.setAttribute('y1', 45 + leftArmPhase * 0.3);
+                     armL2.setAttribute('x2', 30 + leftArmPhase);
+                     
+                     // Right arm swing (opposite to left)
+                     const rightArmPhase = Math.sin(cycle) * armSwing;
+                     armR1.setAttribute('x2', 62 + rightArmPhase * 0.8);
+                     armR1.setAttribute('y2', 45 + rightArmPhase * 0.3);
+                     armR2.setAttribute('x1', 62 + rightArmPhase * 0.8);
+                     armR2.setAttribute('y1', 45 + rightArmPhase * 0.3);
+                     armR2.setAttribute('x2', 70 + rightArmPhase);
+                     
+                     // Left leg stepping with realistic knee bending
+                     const leftLegPhase = Math.sin(cycle) * step;
+                     const leftKneeBend = Math.sin(cycle) * 10; // More pronounced knee bend
+                     legL1.setAttribute('x2', 45 + leftLegPhase * 0.6);
+                     legL1.setAttribute('y2', 75 + Math.abs(leftKneeBend) * 0.8); // Higher knee lift
+                     legL2.setAttribute('x1', 45 + leftLegPhase * 0.6);
+                     legL2.setAttribute('y1', 75 + Math.abs(leftKneeBend) * 0.8);
+                     legL2.setAttribute('x2', 40 + leftLegPhase);
+                     
+                     // Right leg stepping with realistic knee bending (opposite to left)
+                     const rightLegPhase = Math.sin(cycle + Math.PI) * step;
+                     const rightKneeBend = Math.sin(cycle + Math.PI) * 10; // More pronounced knee bend
+                     legR1.setAttribute('x2', 55 + rightLegPhase * 0.6);
+                     legR1.setAttribute('y2', 75 + Math.abs(rightKneeBend) * 0.8); // Higher knee lift
+                     legR2.setAttribute('x1', 55 + rightLegPhase * 0.6);
+                     legR2.setAttribute('y1', 75 + Math.abs(rightKneeBend) * 0.8);
+                     legR2.setAttribute('x2', 60 + rightLegPhase);
+                     
+                     // Move feet with legs
+                     footL.setAttribute('cx', 40 + leftLegPhase);
+                     footL.setAttribute('cy', 98 - Math.abs(leftLegPhase) * 0.3); // Slight foot lift
+                     footR.setAttribute('cx', 60 + rightLegPhase);  
+                     footR.setAttribute('cy', 98 - Math.abs(rightLegPhase) * 0.3); // Slight foot lift
+                     
+                 } else if (type === 'kneeling') {
+                     // Kneeling with one knee on floor, moving forward (no rotation applied)
+                     const kneeWalk = Math.sin(cycle * 0.8) * 3; // Forward knee movement
+                     const balance = Math.sin(cycle * 0.6) * 2; // Body balance sway
+                     
+                     // Head MUCH lower - person is kneeling so head is closer to ground
+                     head.setAttribute('cy', 35 + balance * 0.5); // Lowered from 22 to 35
+                     
+                     // Body MUCH lower for proper kneeling posture
+                     body.setAttribute('y1', 45); // Lowered from 32 to 45
+                     body.setAttribute('y2', 80); // Lowered from 70 to 80 
+                     body.setAttribute('x1', 50 + balance * 0.3);
+                     body.setAttribute('x2', 50 + balance * 0.3);
+                     
+                     // Arms MUCH lower - closer to ground level for balance/support
+                     armL1.setAttribute('y1', 50); // Attach to lowered body position
+                     armL1.setAttribute('x2', 42 + balance);
+                     armL1.setAttribute('y2', 60); // Lowered elbow position
+                     armL2.setAttribute('x1', 42 + balance);
+                     armL2.setAttribute('y1', 60); // Lowered elbow position
+                     armL2.setAttribute('x2', 36 + balance * 1.5); // Hand closer to ground
+                     armL2.setAttribute('y2', 75); // Hand much lower for support
+                     
+                     armR1.setAttribute('y1', 50); // Attach to lowered body position
+                     armR1.setAttribute('x2', 58 - balance);
+                     armR1.setAttribute('y2', 60); // Lowered elbow position
+                     armR2.setAttribute('x1', 58 - balance);
+                     armR2.setAttribute('y1', 60); // Lowered elbow position  
+                     armR2.setAttribute('x2', 64 - balance * 1.5); // Hand closer to ground
+                     armR2.setAttribute('y2', 75); // Hand much lower for support
+                     
+                     // Left leg - THE KNEELING LEG (knee walks forward/back on floor)
+                     legL1.setAttribute('x2', 48 + kneeWalk); // Thigh follows knee movement
+                     legL1.setAttribute('y2', 85); // Thigh angled down to knee
+                     legL2.setAttribute('x1', 48 + kneeWalk); // Knee position on floor
+                     legL2.setAttribute('y1', 95); // KNEE TOUCHES FLOOR - this is key!
+                     legL2.setAttribute('x2', 46 + kneeWalk); // Lower leg/foot drags behind knee
+                     legL2.setAttribute('y2', 95); // Foot also on floor level
+                     
+                     // Right leg - SUPPORTING LEG (foot STAYS planted, knee bent but stable)
+                     legR1.setAttribute('x2', 58); // Stable thigh position - NO movement
+                     legR1.setAttribute('y2', 78); // Bent at knee - stable position
+                     legR2.setAttribute('x1', 58); // Knee position - STABLE
+                     legR2.setAttribute('y1', 78); // Knee height - stable
+                     legR2.setAttribute('x2', 62); // Foot PLANTED and STABLE on ground
+                     legR2.setAttribute('y2', 95); // Supporting foot STAYS on floor
+                     
+                     // Feet positions for kneeling
+                     footL.setAttribute('cx', 46 + kneeWalk); // Left foot drags with knee
+                     footL.setAttribute('cy', 98); // On ground level
+                     footR.setAttribute('cx', 62); // Right foot STABLE - no movement
+                     footR.setAttribute('cy', 98); // On ground level
+                     
+                 } else if (type === 'crawling') {
+                     // Army crawling - head on floor, elbow movement primary (90° rotation applied by CSS)
+                     const crawlCycle = cycle * 0.5; // Slower, deliberate crawling motion
+                     const elbowPush = Math.sin(crawlCycle) * 8; // Primary elbow movement
+                     
+                     // HEAD ON FLOOR LEVEL - key change!
+                     head.setAttribute('cy', 85); // Much lower - almost at floor level
+                     
+                     // Body very low, almost flat on ground
+                     body.setAttribute('y1', 88); // Body starts very low
+                     body.setAttribute('y2', 92); // Short body, close to floor
+                     
+                     // ARMS: Primary crawling motion - elbow walking!
+                     const leftElbowPhase = Math.sin(crawlCycle) * elbowPush;
+                     const rightElbowPhase = Math.sin(crawlCycle + Math.PI) * elbowPush;
+                     
+                     // Left arm - elbow pulls body forward
+                     armL1.setAttribute('y1', 90); // Attach to low body
+                     armL1.setAttribute('x2', 35 + leftElbowPhase * 0.6);
+                     armL1.setAttribute('y2', 88); // Elbow on ground level
+                     armL2.setAttribute('x1', 35 + leftElbowPhase * 0.6);
+                     armL2.setAttribute('y1', 88); // Elbow joint on ground
+                     armL2.setAttribute('x2', 25 + leftElbowPhase); // Hand reaches forward/pulls
+                     armL2.setAttribute('y2', 85); // Hand on floor
+                     
+                     // Right arm - alternating elbow pull
+                     armR1.setAttribute('y1', 90); // Attach to low body
+                     armR1.setAttribute('x2', 65 + rightElbowPhase * 0.6);
+                     armR1.setAttribute('y2', 88); // Elbow on ground level
+                     armR2.setAttribute('x1', 65 + rightElbowPhase * 0.6);
+                     armR2.setAttribute('y1', 88); // Elbow joint on ground
+                     armR2.setAttribute('x2', 75 + rightElbowPhase); // Hand reaches forward/pulls
+                     armR2.setAttribute('y2', 85); // Hand on floor
+                     
+                     // LEGS: Passive dragging, minimal movement
+                     const legDrag = Math.sin(crawlCycle * 0.3) * 2; // Very slow leg movement
+                     
+                     // Left leg - just dragging
+                     legL1.setAttribute('y1', 92); // Attach to low body
+                     legL1.setAttribute('x2', 48 + legDrag);
+                     legL1.setAttribute('y2', 88); // Thigh low
+                     legL2.setAttribute('x1', 48 + legDrag);
+                     legL2.setAttribute('y1', 88);
+                     legL2.setAttribute('x2', 44 + legDrag); // Foot drags
+                     legL2.setAttribute('y2', 95); // Foot on ground
+                     
+                     // Right leg - just dragging
+                     legR1.setAttribute('y1', 92); // Attach to low body
+                     legR1.setAttribute('x2', 52 - legDrag);
+                     legR1.setAttribute('y2', 88); // Thigh low
+                     legR2.setAttribute('x1', 52 - legDrag);
+                     legR2.setAttribute('y1', 88);
+                     legR2.setAttribute('x2', 56 - legDrag); // Foot drags
+                     legR2.setAttribute('y2', 95); // Foot on ground
+                     
+                     // Feet just drag along the floor
+                     footL.setAttribute('cx', 44 + legDrag);
+                     footL.setAttribute('cy', 98); // Feet on floor
+                     footR.setAttribute('cx', 56 - legDrag);
+                     footR.setAttribute('cy', 98); // Feet on floor
+                 }
+             }
+             
+             clearAnimations() {
+                 if (this.animationTimer) {
+                     clearInterval(this.animationTimer);
+                     this.animationTimer = null;
+                 }
+             }
+             
+             createDeathScatterEffect() {
+                 // Create dramatic body part scatter effect
+                 const centerX = this.x + 30;
+                 const centerY = this.y + 35;
+                 
+                 // Create "body parts" particles with different colors and shapes
+                 const bodyParts = [
+                     { color: '#8B0000', size: 6, name: 'torso' },
+                     { color: '#A52A2A', size: 4, name: 'head' },
+                     { color: '#DC143C', size: 3, name: 'arm1' },
+                     { color: '#DC143C', size: 3, name: 'arm2' },
+                     { color: '#B22222', size: 4, name: 'leg1' },
+                     { color: '#B22222', size: 4, name: 'leg2' }
+                 ];
+                 
+                 bodyParts.forEach((part, index) => {
+                     for (let i = 0; i < 3; i++) { // 3 particles per body part
+                         const angle = (index * Math.PI / 3) + (Math.random() - 0.5) * Math.PI;
+                         const speed = 3 + Math.random() * 4;
+                         const vx = Math.cos(angle) * speed;
+                         const vy = Math.sin(angle) * speed - Math.random() * 2;
+                         
+                         particles.push(new Particle(
+                             centerX + (Math.random() - 0.5) * 20,
+                             centerY + (Math.random() - 0.5) * 20,
+                             vx, vy, part.color, 120
+                         ));
+                     }
+                 });
+                 
+                 // Create additional blood splatter
+                 const bloodColors = ['#8B0000', '#A52A2A', '#B22222', '#DC143C'];
+                 for (let i = 0; i < 15; i++) {
+                     const angle = Math.random() * Math.PI * 2;
+                     const speed = 2 + Math.random() * 5;
+                     const vx = Math.cos(angle) * speed;
+                     const vy = Math.sin(angle) * speed - Math.random() * 3;
+                     const color = bloodColors[Math.floor(Math.random() * bloodColors.length)];
+                     
+                     particles.push(new Particle(centerX, centerY, vx, vy, color, 100));
+                 }
+             }
+             
+             stopAnimation() {
+                 this.clearAnimations();
+             }
+            
+                         updatePosition() {
+                 if (!this.element) return;
+                 this.element.style.left = this.x + 'px';
+                 this.element.style.top = this.y + 'px';
+                 
+                 // Apply rotation based on state
+                 let rotation = 0;
+                 if (this.state === 'crawling') {
+                     rotation = 90; // 90 degree angle (horizontal) for crawling
+                 } else if (this.state === 'falling') {
+                     rotation = this.fallAngle; // Dynamic falling rotation
+                 }
+                 // Note: kneeling now uses natural floor-kneeling pose (no rotation needed)
+                 
+                 this.element.style.transform = `scale(${this.scale}) rotate(${rotation}deg)`;
+             }
+            
+                         updateHealthBar() {
+                 const healthPercent = this.health / this.maxHealth;
+                 const healthBar = this.element.querySelector('#health-fill');
+                 if (healthBar) {
+                     // Scale health bar width to simple coordinate system
+                     healthBar.setAttribute('width', (60 * healthPercent).toString());
+                 }
+                 
+                 // Update stroke color based on health
+                 const healthColor = healthPercent > 0.66 ? '#2c3e50' : 
+                                   healthPercent > 0.33 ? '#e67e22' : '#c0392b';
+                 
+                 const bodyGroup = this.element.querySelector('g');
+                 if (bodyGroup) {
+                     bodyGroup.setAttribute('stroke', healthColor);
+                 }
+                 
+                 // Update health bar color
+                 if (healthBar) {
+                     const barColor = healthPercent > 0.66 ? '#27ae60' : 
+                                     healthPercent > 0.33 ? '#f39c12' : '#e74c3c';
+                     healthBar.setAttribute('fill', barColor);
+                 }
+                 
+                 // Trigger animation update since health changed
+                 this.animationNeedsUpdate = true;
+             }
+            
+                         update() {
+                 if (!this.active) return;
+                 
+                 this.age += 16;
+                 
+                 // Store previous state
+                 const prevState = this.state;
+                 
+                 // Update health-based state transitions  
+                 const healthPercent = this.health / this.maxHealth;
+                 if (this.health > 0) {
+                     // 6 health -> 4 health (66%) = kneeling
+                     // 4 health -> 2 health (33%) = crawling  
+                     if (this.health <= 2 && this.state !== "crawling") {
+                         console.log(`Transition to crawling: ${this.health}/${this.maxHealth}`);
+                         this.state = "crawling";
+                     } else if (this.health <= 4 && this.state === "standing") {
+                         console.log(`Transition to kneeling: ${this.health}/${this.maxHealth}`);
+                         this.state = "kneeling";
+                     }
+                 }
+                 
+                 // Handle death - only after health reaches 0
+                 if (this.health <= 0 && this.state !== "falling" && this.state !== "dead") {
+                     console.log("Starting death animation");
+                     this.state = "falling";
+                     this.fallAngle = 0;
+                     this.stopAnimation(); // Stop body animations
+                     
+                     // Create dramatic death scatter effect
+                     this.createDeathScatterEffect();
+                 }
+                 
+                 // Continue death animation
+                 if (this.state === "falling") {
+                     this.fallAngle += 1.5; // Slower rotation
+                     this.updatePosition(); // Use updatePosition for consistent transform handling
+                     if (this.fallAngle >= 90) {
+                         this.state = "dead";
+                         this.element.style.opacity = "0.3";
+                     }
+                 }
+                 
+                 // Update animation if state changed
+                 if (prevState !== this.state || this.animationNeedsUpdate) {
+                     console.log(`Animation update: ${prevState} -> ${this.state}`);
+                     this.updateAnimation();
+                     this.updatePosition(); // Update rotation when state changes
+                     this.animationNeedsUpdate = false;
+                 }
+                 
+                 // Movement (slower when wounded) - don't move when falling/dead
+                 if (this.isMoving && this.state !== "dead" && this.state !== "falling") {
+                     let speedMultiplier = 1;
+                     if (this.state === "crawling") speedMultiplier = 0.2;
+                     else if (this.state === "kneeling") speedMultiplier = 0.5;
+                     
+                     this.x += this.vx * speedMultiplier;
+                     this.x = Math.max(50, Math.min(canvas.width - 50, this.x));
+                     this.updatePosition();
+                 }
+                 
+                 // Lifetime check
+                 if (this.age > this.lifetime) {
+                     this.active = false;
+                     this.clearAnimations();
+                     if (this.element) {
+                         this.element.remove();
+                     }
+                 }
+             }
+            
+            isHit(mouseX, mouseY) {
+                if (!this.active) return false;
+                const distance = Math.sqrt((mouseX - this.x - 30) ** 2 + (mouseY - this.y - 35) ** 2);
+                return distance < 35;
+            }
+            
+                         hit() {
+                 if (this.state === "dead" || this.state === "falling") return;
+                 
+                 // Fixed damage of 1 per hit for predictable progression
+                 this.health -= 1;
+                 
+                 console.log(`Hit! Health: ${this.health}/${this.maxHealth}, State: ${this.state}`);
+                 
+                 // Create hit effect
+                 createHitEffect(this.x + 30, this.y + 35);
+                 
+                 // Update health bar
+                 this.updateHealthBar();
+                 
+                 // Force animation update
+                 this.animationNeedsUpdate = true;
+                 
+                 // Award points
+                 score += 2;
+                 if (this.health <= 0) {
+                     score += this.isMoving ? 20 : 10;
+                 }
+                 
+                 updateScore();
+             }
+        }
+        
+        // Particle system (remains canvas-based for effects)
+        class Particle {
+            constructor(x, y, vx, vy, color, life = 80) {
+                this.x = x;
+                this.y = y;
+                this.vx = vx;
+                this.vy = vy;
+                this.color = color;
+                this.life = life;
+                this.maxLife = life;
+                this.size = Math.random() * 8 + 4;
+                this.gravity = 0.15;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += this.gravity;
+                this.life--;
+                
+                // Add some air resistance
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+            }
+            
+            draw(ctx) {
+                const alpha = this.life / this.maxLife;
+                ctx.globalAlpha = alpha;
+                
+                // Outer glow
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size + 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Main bubble
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Bright highlight
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                ctx.beginPath();
+                ctx.arc(this.x - this.size * 0.3, this.y - this.size * 0.3, this.size * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        function createHitEffect(x, y) {
+            // Blood splash effect - only red colors
+            const bloodColors = [
+                '#FF0000', '#CC0000', '#AA0000', '#880000', 
+                '#FF3333', '#DD1111', '#BB0000'
+            ];
+            
+            for (let i = 0; i < 18; i++) {
+                const angle = (Math.PI * 2 * i) / 18 + Math.random() * 0.5;
+                const speed = Math.random() * 4 + 2;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed - Math.random() * 2;
+                const color = bloodColors[Math.floor(Math.random() * bloodColors.length)];
+                
+                particles.push(new Particle(x, y, vx, vy, color));
+            }
+        }
+        
+        function createMuzzleFlash(x, y) {
+            const weapon = weapons[currentWeapon];
+            const particleCount = weapon.pellets === 5 ? 8 : 4;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 2 + 1;
+                const vx = Math.cos(angle) * speed;
+                const vy = Math.sin(angle) * speed;
+                
+                particles.push(new Particle(x, y, vx, vy, '#FFA500', 20));
+            }
+        }
+        
+                 function spawnTarget() {
+             const x = Math.random() * (canvas.width - 100) + 50;
+             const y = Math.random() * (canvas.height - 200) + 100;
+             const scale = 0.8 + Math.random() * 0.4;
+             
+             const target = new SVGStickman(x, y, scale);
+             targets.push(target);
+             console.log(`Spawned target with ${target.health} health`);
+         }
+        
+        function drawBackground() {
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(0.7, '#E0F6FF');
+            gradient.addColorStop(1, '#98FB98');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Clouds
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            for (let i = 0; i < 5; i++) {
+                const x = (i * 200) + Math.sin(Date.now() * 0.001 + i) * 20;
+                const y = 50 + i * 20;
+                drawCloud(x, y);
+            }
+        }
+        
+        function drawCloud(x, y) {
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, Math.PI * 2);
+            ctx.arc(x + 25, y, 30, 0, Math.PI * 2);
+            ctx.arc(x + 50, y, 20, 0, Math.PI * 2);
+            ctx.arc(x + 15, y - 15, 25, 0, Math.PI * 2);
+            ctx.arc(x + 35, y - 15, 25, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function drawCrosshair() {
+            const weapon = weapons[currentWeapon];
+            ctx.strokeStyle = weapon.color;
+            ctx.lineWidth = 3;
+            ctx.setLineDash([5, 5]);
+            
+            // Crosshair lines
+            ctx.beginPath();
+            ctx.moveTo(mouseX - 20, mouseY);
+            ctx.lineTo(mouseX + 20, mouseY);
+            ctx.moveTo(mouseX, mouseY - 20);
+            ctx.lineTo(mouseX, mouseY + 20);
+            ctx.stroke();
+            
+            // Center dot
+            ctx.setLineDash([]);
+            ctx.fillStyle = weapon.color;
+            ctx.beginPath();
+            ctx.arc(mouseX, mouseY, 3, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        
+        function gameLoop() {
+            if (!gameActive) return;
+            
+            // Clear canvas
+            drawBackground();
+            
+            // Update and draw particles
+            particles = particles.filter(particle => {
+                particle.update();
+                if (particle.life > 0) {
+                    particle.draw(ctx);
+                    return true;
+                }
+                return false;
+            });
+            
+            // Update targets (SVG handles the drawing)
+            targets = targets.filter(target => {
+                target.update();
+                return target.active;
+            });
+            
+            // Draw crosshair
+            drawCrosshair();
+            
+            // Spawn new targets
+            if (Math.random() < 0.02 && targets.length < 8) {
+                spawnTarget();
+            }
+            
+            animationId = requestAnimationFrame(gameLoop);
+        }
+        
+        function startGame() {
+            gameActive = true;
+            score = 0;
+            targets = [];
+            particles = [];
+            currentWeapon = 'pistol';
+            lastShotTime = 0;
+            
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            
+            updateScore();
+            updateWeaponButtons();
+            
+            // Start game timer
+            gameTimer = setTimeout(() => {
+                endGame();
+            }, 60000); // 60 seconds
+            
+            gameLoop();
+        }
+        
+        function endGame() {
+            gameActive = false;
+            clearTimeout(gameTimer);
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+            }
+            
+            // Clean up SVG elements
+            targets.forEach(target => {
+                if (target.element) {
+                    target.element.remove();
+                }
+            });
+            targets = [];
+            
+            document.getElementById('finalScore').textContent = `Final Score: ${score}`;
+            gameOverScreen.style.display = 'flex';
+            
+            // Load and display high scores
+            displayHighScores();
+        }
+        
+        function restartGame() {
+            const playerName = document.getElementById('playerName').value.trim() || 'Anonymous';
+            saveHighScore(playerName, score);
+            startGame();
+        }
+        
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+        
+        function selectWeapon(weaponName) {
+            currentWeapon = weaponName;
+            updateWeaponButtons();
+        }
+        
+        function updateWeaponButtons() {
+            document.querySelectorAll('.weapon-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.weapon === currentWeapon);
+            });
+        }
+        
+        function saveHighScore(name, score) {
+            let highScores = JSON.parse(localStorage.getItem('shootingGalleryHighScores') || '[]');
+            highScores.push({ name, score, date: new Date().toLocaleDateString() });
+            highScores.sort((a, b) => b.score - a.score);
+            highScores = highScores.slice(0, 5); // Keep top 5
+            localStorage.setItem('shootingGalleryHighScores', JSON.stringify(highScores));
+        }
+        
+        function displayHighScores() {
+            const highScores = JSON.parse(localStorage.getItem('shootingGalleryHighScores') || '[]');
+            const highScoresDiv = document.getElementById('highScores');
+            
+            if (highScores.length === 0) {
+                highScoresDiv.innerHTML = '<h3>🏆 High Scores</h3><p>No scores yet!</p>';
+                return;
+            }
+            
+            let html = '<h3>🏆 High Scores</h3>';
+            highScores.forEach((score, index) => {
+                html += `<div>${index + 1}. ${score.name}: ${score.score}</div>`;
+            });
+            
+            highScoresDiv.innerHTML = html;
+        }
+        
+        // Event Listeners
+        document.querySelectorAll('.weapon-btn').forEach(btn => {
+            btn.addEventListener('click', () => selectWeapon(btn.dataset.weapon));
+        });
+        
+        canvas.addEventListener('mousemove', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            mouseX = event.clientX - rect.left;
+            mouseY = event.clientY - rect.top;
+        });
+        
+        canvas.addEventListener('click', (event) => {
+            if (!gameActive) return;
+            
+            const currentTime = Date.now();
+            const weapon = weapons[currentWeapon];
+            
+            // Check cooldown
+            if (currentTime - lastShotTime < weapon.cooldown) return;
+            lastShotTime = currentTime;
+            
+            const rect = canvas.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const clickY = event.clientY - rect.top;
+            
+            // Create muzzle flash
+            createMuzzleFlash(mouseX, mouseY);
+            
+            // Handle shotgun pellets
+            const shots = weapon.pellets || 1;
+            
+            for (let shot = 0; shot < shots; shot++) {
+                let targetX = clickX;
+                let targetY = clickY;
+                
+                // Add spread for shotgun
+                if (currentWeapon === 'shotgun') {
+                    targetX += (Math.random() - 0.5) * 60;
+                    targetY += (Math.random() - 0.5) * 60;
+                }
+                
+                // Check hits
+                for (let target of targets) {
+                    if (target.isHit(targetX, targetY)) {
+                        target.hit();
+                        break;
+                    }
+                }
+            }
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (event) => {
+            if (!gameActive) return;
+            
+            switch(event.key) {
+                case '1': selectWeapon('pistol'); break;
+                case '2': selectWeapon('shotgun'); break;
+                case '3': selectWeapon('rifle'); break;
+                case '4': selectWeapon('machineGun'); break;
+            }
+        });
+        
+        // Prevent context menu
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+        
+        // Initialize
+        updateWeaponButtons();
+        drawBackground();
+        
+        // Show welcome message
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.font = 'bold 24px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('🎯 Ultra Smooth SVG Stickman Gallery', canvas.width / 2, canvas.height / 2 - 20);
+        ctx.font = '16px Arial';
+        ctx.fillText('Professional keyframe animations powered by SVG', canvas.width / 2, canvas.height / 2 + 10);
+        ctx.fillText('Click "Start Game" to experience buttery-smooth motion!', canvas.width / 2, canvas.height / 2 + 40);
+    </script>
+</body>
+</html> 

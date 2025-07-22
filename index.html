@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stickman Shooting Gallery - Web Edition</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .subtitle {
+            text-align: center;
+            margin-bottom: 20px;
+            opacity: 0.8;
+            font-size: 1.2em;
+        }
+        
+        .game-canvas {
+            display: block;
+            margin: 20px auto;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .controls h3 {
+            margin-top: 0;
+            color: #FFD700;
+        }
+        
+        .control-row {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .control-item {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        
+        .loading {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.2em;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .feature h4 {
+            color: #FFD700;
+            margin-top: 0;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .control-row {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Stickman Shooting Gallery</h1>
+        <p class="subtitle">The Ultimate Browser-Based Shooting Experience</p>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading game... Please wait</p>
+        </div>
+        
+        <canvas id="canvas" class="game-canvas" style="display: none;"></canvas>
+        
+        <div class="controls">
+            <h3>🎮 Game Controls</h3>
+            <div class="control-row">
+                <div class="control-item">🖱️ <strong>Mouse:</strong> Aim and shoot</div>
+                <div class="control-item">🔫 <strong>Click:</strong> Fire weapon</div>
+            </div>
+            <div class="control-row">
+                <div class="control-item">⌨️ <strong>1-4:</strong> Switch weapons</div>
+                <div class="control-item">⏰ <strong>Goal:</strong> Score high in 60 seconds!</div>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h4>🔫 Multiple Weapons</h4>
+                <p>Choose from Pistol, Shotgun, Rifle, and Machine Gun - each with unique characteristics!</p>
+            </div>
+            <div class="feature">
+                <h4>🏃 Dynamic Targets</h4>
+                <p>Face stationary and running stickman targets with different health levels and behaviors!</p>
+            </div>
+            <div class="feature">
+                <h4>🏆 High Scores</h4>
+                <p>Compete for the top spot on the leaderboard and save your best scores!</p>
+            </div>
+            <div class="feature">
+                <h4>🎨 Smooth Graphics</h4>
+                <p>Enjoy fluid animations, particle effects, and realistic weapon mechanics!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Show the canvas and hide loading when the game is ready
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('canvas').style.display = 'block';
+            }, 2000);
+        });
+        
+        // Prevent context menu on right-click for better game experience
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+        
+        // Disable text selection for smoother gameplay
+        document.addEventListener('selectstart', function(e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+</html> 
