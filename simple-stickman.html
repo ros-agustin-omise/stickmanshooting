@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Stickman Display</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+
+
+        .container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .stickman-area {
+            position: absolute;
+            width: 400px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 50px;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .stickman {
+            position: relative;
+            transform: scale(2);
+            transform-origin: center bottom;
+        }
+
+        /* Stickman Body Parts */
+        .head {
+            width: 20px;
+            height: 20px;
+            border: 3px solid #080101;
+            border-radius: 50%;
+            margin: 0 auto 5px;
+            background: transparent;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        .body {
+            width: 3px;
+            height: 40px;
+            background: #080101;
+            margin: 0 auto;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+            position: relative;
+            transform: rotate(3deg);
+            transform-origin: center top;
+        }
+
+        .arms {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .arm-left, .arm-right {
+            width: 25px;
+            height: 3px;
+            background: #080101;
+            position: absolute;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .arm-left {
+            transform: rotate(-45deg);
+            transform-origin: right center;
+            right: 1.5px;
+        }
+
+        .arm-right {
+            transform: rotate(15deg);
+            transform-origin: left center;
+            left: 1.5px;
+        }
+
+        .legs {
+            position: relative;
+            margin-top: 0;
+        }
+
+        .leg-left, .leg-right {
+            width: 30px;
+            height: 3px;
+            background: #080101;
+            position: absolute;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .leg-left {
+            transform: rotate(-20deg);
+            transform-origin: right center;
+            right: 1.5px;
+            top: 0;
+        }
+
+        .leg-right {
+            transform: rotate(60deg);
+            transform-origin: left center;
+            left: 1.5px;
+            top: 0;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
+            border-radius: 2px;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .title {
+            position: absolute;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+            z-index: 101;
+            position: relative;
+        }
+
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* Animation classes */
+        .stickman.wave .arm-right {
+            animation: wave 1s ease-in-out infinite;
+        }
+
+        .stickman.dance .body {
+            animation: dance 1.5s ease-in-out infinite;
+        }
+
+        .stickman.jump {
+            animation: jump 0.8s ease-in-out infinite;
+        }
+
+        .stickman.walk .arm-left {
+            animation: walk-arm-left 1.2s ease-in-out infinite;
+        }
+
+        .stickman.walk .arm-right {
+            animation: walk-arm-right 1.2s ease-in-out infinite;
+        }
+
+        .stickman.walk .leg-left {
+            animation: walk-leg-left 1.2s ease-in-out infinite;
+        }
+
+        .stickman.walk .leg-right {
+            animation: walk-leg-right 1.2s ease-in-out infinite;
+        }
+
+        .stickman.walk .body {
+            animation: walk-body 1.2s ease-in-out infinite;
+        }
+
+        .stickman.run {
+            animation: runAcrossScreen 5s linear infinite;
+        }
+
+        .stickman.run .arm-left {
+            animation: walk-arm-left 0.3s ease-in-out infinite;
+        }
+
+        .stickman.run .arm-right {
+            animation: walk-arm-right 0.3s ease-in-out infinite;
+        }
+
+        .stickman.run .leg-left {
+            animation: walk-leg-left 0.3s ease-in-out infinite;
+        }
+
+        .stickman.run .leg-right {
+            animation: walk-leg-right 0.3s ease-in-out infinite;
+        }
+
+        .stickman.run .body {
+            animation: walk-body 0.3s ease-in-out infinite;
+        }
+
+        .stickman.kneel {
+            animation: kneelWalk 6s linear infinite;
+        }
+
+        .stickman.kneel .body {
+            animation: kneelWalkBody 1.5s ease-in-out infinite;
+        }
+
+        .stickman.kneel .arm-left {
+            animation: kneelWalkArmLeft 1.5s ease-in-out infinite;
+        }
+
+        .stickman.kneel .arm-right {
+            animation: kneelWalkArmRight 1.5s ease-in-out infinite;
+        }
+
+        .stickman.kneel .leg-left {
+            animation: kneelWalkLegLeft 1.5s ease-in-out infinite;
+        }
+
+        .stickman.kneel .leg-right {
+            animation: kneelWalkLegRight 1.5s ease-in-out infinite;
+        }
+
+        .stickman.kneel .head {
+            animation: kneelWalkHead 1.5s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(30deg); }
+            50% { transform: rotate(-20deg); }
+        }
+
+        @keyframes dance {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(3deg); }
+            75% { transform: rotate(-3deg); }
+        }
+
+        @keyframes jump {
+            0%, 100% { transform: scale(2) translateY(0); }
+            50% { transform: scale(2) translateY(-20px); }
+        }
+
+        /* Idle breathing animation */
+        .stickman {
+            animation: breathe 3s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { transform: scale(2); }
+            50% { transform: scale(2.05); }
+        }
+
+        @keyframes walk-arm-left {
+            0%, 100% { transform: rotate(-45deg); }
+            50% { transform: rotate(15deg); }
+        }
+
+        @keyframes walk-arm-right {
+            0%, 100% { transform: rotate(15deg); }
+            50% { transform: rotate(-45deg); }
+        }
+
+        @keyframes walk-leg-left {
+            0%, 100% { transform: rotate(-120deg); }
+            50% { transform: rotate(-30deg); }
+        }
+
+        @keyframes walk-leg-right {
+            0%, 100% { transform: rotate(60deg); }
+            50% { transform: rotate(-20deg); }
+        }
+
+        @keyframes walk-body {
+            0%, 100% { transform: rotate(3deg); }
+            25% { transform: rotate(5deg); }
+            50% { transform: rotate(-3deg); }
+            75% { transform: rotate(-5deg); }
+        }
+
+        @keyframes runAcrossScreen {
+            0% { 
+                transform: translateX(-400px) scale(2); 
+            }
+            100% { 
+                transform: translateX(400px) scale(2); 
+            }
+        }
+
+        @keyframes kneelWalk {
+            0% { 
+                transform: translateX(-350px) scale(2); 
+            }
+            100% { 
+                transform: translateX(350px) scale(2); 
+            }
+        }
+
+        @keyframes kneelWalkBody {
+            0% { transform: rotate(0deg) translateY(20px); }
+            25% { transform: rotate(2deg) translateY(22px); }
+            50% { transform: rotate(0deg) translateY(20px); }
+            75% { transform: rotate(-2deg) translateY(22px); }
+            100% { transform: rotate(45deg) translateY(20px); }
+        }
+
+        @keyframes kneelWalkArmLeft {
+            0% { transform: rotate(-60deg); }
+            25% { transform: rotate(-20deg); }
+            50% { transform: rotate(-60deg); }
+            75% { transform: rotate(-40deg); }
+            100% { transform: rotate(-60deg); }
+        }
+
+        @keyframes kneelWalkArmRight {
+            0% { transform: rotate(20deg); }
+            25% { transform: rotate(60deg); }
+            50% { transform: rotate(20deg); }
+            75% { transform: rotate(40deg); }
+            100% { transform: rotate(20deg); }
+        }
+
+        @keyframes kneelWalkLegLeft {
+            0% { transform: rotate(0deg) translateY(15px) translateX(5px); }
+            25% { transform: rotate(75deg) translateY(18px) translateX(2px); }
+            50% { transform: rotate(45deg) translateY(15px) translateX(5px); }
+            75% { transform: rotate(85deg) translateY(16px) translateX(3px); }
+            100% { transform: rotate(90deg) translateY(15px) translateX(5px); }
+        }
+
+        @keyframes kneelWalkLegRight {
+            0% { transform: rotate(0deg) translateY(15px) translateX(5px); }
+            25% { transform: rotate(75deg) translateY(18px) translateX(2px); }
+            50% { transform: rotate(45deg) translateY(15px) translateX(5px); }
+            75% { transform: rotate(85deg) translateY(16px) translateX(3px); }
+            100% { transform: rotate(90deg) translateY(15px) translateX(5px); }
+        }
+
+        @keyframes kneelWalkHead {
+            0% { transform: rotate(0deg) translateY(20px); }
+            25% { transform: rotate(2deg) translateY(22px); }
+            50% { transform: rotate(0deg) translateY(20px); }
+            75% { transform: rotate(-2deg) translateY(22px); }
+            100% { transform: rotate(-25deg) translateY(20px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Simple Stickman</h1>
+        
+        <div class="stickman-area">
+            <div class="stickman" id="stickman">
+                <div class="head"></div>
+                <div class="body">
+                    <div class="arms">
+                        <div class="arm-left"></div>
+                        <div class="arm-right"></div>
+                    </div>
+                </div>
+                <div class="legs">
+                    <div class="leg-left"></div>
+                    <div class="leg-right"></div>
+                </div>
+            </div>
+            <div class="ground"></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn" onclick="setAnimation('idle')">Idle</button>
+            <button class="btn" onclick="setAnimation('wave')">Wave</button>
+            <button class="btn" onclick="setAnimation('run')">Run</button>
+            <button class="btn" onclick="setAnimation('kneel')">Kneel Walk</button>
+            <button class="btn" onclick="setAnimation('dance')">Dance</button>
+            <button class="btn" onclick="setAnimation('jump')">Jump</button>
+        </div>
+    </div>
+
+    <script>
+        const stickman = document.getElementById('stickman');
+
+        function setAnimation(type) {
+            // Remove all animation classes
+            stickman.className = 'stickman';
+            
+            // Add new animation class
+            if (type !== 'idle') {
+                stickman.classList.add(type);
+            }
+        }
+
+        // Add some interactivity
+        stickman.addEventListener('click', () => {
+            setAnimation('wave');
+            setTimeout(() => setAnimation('idle'), 2000);
+        });
+
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case '1': setAnimation('idle'); break;
+                case '2': setAnimation('wave'); break;
+                case '3': setAnimation('run'); break;
+                case '4': setAnimation('kneel'); break;
+                case '5': setAnimation('dance'); break;
+                case '6': setAnimation('jump'); break;
+            }
+        });
+
+        console.log('🎯 Stickman Controls:');
+        console.log('- Click buttons to change animations');
+        console.log('- Click stickman to make it wave');
+        console.log('- Use keys 1-6 for quick animation changes');
+        console.log('🏃‍♂️ Animations available:');
+        console.log('- Key 1: Idle - Gentle breathing');
+        console.log('- Key 2: Wave - Arm waving');
+        console.log('- Key 3: Run - Fast running across screen');
+        console.log('- Key 4: Kneel Walk - Crawling across screen on knees');
+        console.log('- Key 5: Dance - Body swaying');
+        console.log('- Key 6: Jump - Bouncing motion');
+    </script>
+</body>
+</html> 

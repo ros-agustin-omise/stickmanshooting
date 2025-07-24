@@ -7,6 +7,7 @@ import os
 
 # Initialize pygame
 pygame.init()
+pygame.mixer.init()
 
 # Screen dimensions
 WIDTH, HEIGHT = 800, 600
@@ -82,6 +83,145 @@ def is_high_score(score):
 
 # Load high scores at startup
 load_high_scores()
+
+# Professional sound system using numpy and pygame
+import numpy as np
+
+# Removed old synthetic gun sound generation - now using real .mp3 files!
+
+def create_sound(frequency, duration, volume=0.3, wave_type='sine'):
+    """Create a simple sound for non-gun effects"""
+    sample_rate = 22050
+    frames = int(duration * sample_rate)
+    
+    # Create time array
+    t = np.linspace(0, duration, frames, False)
+    
+    # Generate waveform
+    if wave_type == 'sine':
+        wave = np.sin(frequency * 2 * np.pi * t)
+    elif wave_type == 'square':
+        wave = np.sign(np.sin(frequency * 2 * np.pi * t))
+    elif wave_type == 'sawtooth':
+        wave = 2 * (t * frequency - np.floor(t * frequency + 0.5))
+    else:
+        wave = np.sin(frequency * 2 * np.pi * t)
+    
+    # Apply envelope
+    fade_frames = int(0.01 * sample_rate)
+    if fade_frames > 0:
+        wave[:fade_frames] *= np.linspace(0, 1, fade_frames)
+        wave[-fade_frames:] *= np.linspace(1, 0, fade_frames)
+    
+    # Apply volume and convert to 16-bit
+    wave = (wave * volume * 32767).astype(np.int16)
+    
+    # Convert to stereo
+    stereo_wave = np.zeros((frames, 2), dtype=np.int16)
+    stereo_wave[:, 0] = wave
+    stereo_wave[:, 1] = wave
+    stereo_wave = np.ascontiguousarray(stereo_wave)
+    
+    return pygame.sndarray.make_sound(stereo_wave)
+
+# Removed create_gun_sound function - now loading real .mp3 files directly!
+
+# Function to try loading a real sound file
+def try_load_sound_file(filename, volume=0.7):
+    """Try to load a sound file with volume control, return None if not found"""
+    try:
+        if os.path.exists(filename):
+            sound = pygame.mixer.Sound(filename)
+            sound.set_volume(volume)  # Set volume for real sounds
+            print(f"   ✅ Loaded real sound file: {filename} (volume: {volume})")
+            return sound
+        else:
+            return None
+    except Exception as e:
+        print(f"   ❌ Failed to load {filename}: {e}")
+        return None
+
+# Create all sound effects
+try:
+    sounds = {}
+    
+    # Load real gun sounds from .mp3 files
+    # Different volumes for different weapon types for realism
+    real_pistol = try_load_sound_file("pistol.mp3", 0.8)
+    real_shotgun = try_load_sound_file("shotgun.mp3", 0.9)  # Shotgun louder
+    real_rifle = try_load_sound_file("rifle-gunshot.mp3", 0.85)
+    real_machine_gun = try_load_sound_file("machine-gun.mp3", 0.6)  # Machine gun quieter for rapid fire
+    
+    # Verify all gun sounds loaded successfully
+    if not all([real_pistol, real_shotgun, real_rifle, real_machine_gun]):
+        missing = []
+        if not real_pistol: missing.append("pistol.mp3")
+        if not real_shotgun: missing.append("shotgun.mp3")
+        if not real_rifle: missing.append("rifle-gunshot.mp3")
+        if not real_machine_gun: missing.append("machine-gun.mp3")
+        raise Exception(f"Missing required sound files: {', '.join(missing)}")
+    
+    sounds = {
+        'pistol': real_pistol,
+        'shotgun': real_shotgun,
+        'rifle': real_rifle,
+        'machine_gun': real_machine_gun,
+        'hit': create_sound(1400, 0.04, 0.5, 'sine'),
+        'fall': create_sound(250, 0.25, 0.6, 'sawtooth'),
+        'click': create_sound(1000, 0.03, 0.4, 'sine'),
+        'beep': create_sound(600, 0.08, 0.5, 'sine'),
+        'game_over': create_sound(180, 0.6, 0.7, 'sawtooth'),
+        'victory': create_sound(523, 0.4, 0.6, 'sine')  # C note
+    }
+    
+    # All sounds loaded successfully
+    sound_count = len([s for s in sounds.values() if s is not None])
+    print(f"   - Successfully loaded {sound_count} total sound effects")
+    print("   - All weapon sounds: 🔫 Pistol | 💥 Shotgun | 🎯 Rifle | 🔫 Machine Gun (ALL REAL)")
+    
+    # Set pygame mixer volume to maximum
+    pygame.mixer.set_num_channels(8)  # Allow multiple sounds to play simultaneously
+    
+    print("🔊 Professional weapon audio system initialized!")
+    print("   - ✅ Using 4/4 REAL gun sound files (.mp3)!")
+    print("   - 🔥 Authentic weapon audio for maximum immersion")
+    print("   - 🎧 Optimized volume levels for each weapon type")
+    print("   - 🎯 Ready for intense shooting action!")
+    SOUND_AVAILABLE = True
+    
+except Exception as e:
+    sounds = {}
+    SOUND_AVAILABLE = False
+    print(f"🔊 Audio system failed to initialize: {e}")
+
+# Sound effect functions with realistic audio
+def play_gun_sound(gun_type):
+    """Play realistic gun sound based on weapon type"""
+    if SOUND_AVAILABLE and gun_type in sounds:
+        sounds[gun_type].play()
+
+def play_hit_sound():
+    """Play satisfying hit sound"""
+    if SOUND_AVAILABLE and 'hit' in sounds:
+        sounds['hit'].play()
+
+def play_fall_sound():
+    """Play dramatic target fall sound"""
+    if SOUND_AVAILABLE and 'fall' in sounds:
+        sounds['fall'].play()
+
+def play_ui_sound(sound_type):
+    """Play appropriate UI sound"""
+    if SOUND_AVAILABLE:
+        sound_map = {
+            'click': 'click',
+            'menu_select': 'beep', 
+            'game_over': 'game_over',
+            'high_score': 'victory'
+        }
+        sound_key = sound_map.get(sound_type, 'click')
+        if sound_key in sounds:
+            sounds[sound_key].play()
 
 # Gun types
 guns = {
@@ -264,6 +404,9 @@ class Crosshair:
     def shoot(self):
         gun = guns[current_gun]
         bullets = []
+        
+        # Play shooting sound
+        play_gun_sound(current_gun)
         
         # Apply recoil
         recoil = gun["recoil"]
@@ -448,6 +591,9 @@ class StickmanTarget:
             self.active = False
     
     def hit(self, damage):
+        # Play hit sound
+        play_hit_sound()
+        
         # Reduce health
         self.health -= damage
         
@@ -462,6 +608,8 @@ class StickmanTarget:
         
         # If health is depleted, start falling animation
         if self.health <= 0:
+            # Play target fall sound
+            play_fall_sound()
             self.falling = True
             self.fall_speed = random.uniform(3, 6)
             # Fall direction (left or right)
@@ -853,6 +1001,7 @@ while running:
             if event.button == 1:  # Left mouse button
                 if game_state == "menu":
                     # Start the game
+                    play_ui_sound("click")
                     game_state = "playing"
                     start_time = pygame.time.get_ticks()
                     score = 0
@@ -893,6 +1042,7 @@ while running:
                 
                 elif game_state == "game_over":
                     # Reset game
+                    play_ui_sound("click")
                     game_state = "menu"
                     
         if event.type == pygame.KEYDOWN:
@@ -900,6 +1050,7 @@ while running:
                 if event.key == pygame.K_RETURN:
                     # Confirm name entry
                     if player_name.strip():  # Make sure name is not empty
+                        play_ui_sound("click")
                         add_high_score(player_name.strip(), score)
                         game_state = "menu"
                         player_name = ""
@@ -915,10 +1066,14 @@ while running:
                 for gun_id, gun_info in guns.items():
                     if event.key == gun_info["key"]:
                         current_gun = gun_id
+                        play_ui_sound("menu_select")
                         break
+                
+
                         
                 if event.key == pygame.K_r and game_state == "game_over":
                     # Reset game
+                    play_ui_sound("click")
                     game_state = "menu"
     
     # Update crosshair position
@@ -953,9 +1108,11 @@ while running:
         # Check if game time is up
         if remaining_time <= 0:
             if is_high_score(score):
+                play_ui_sound("high_score")
                 game_state = "enter_name"
                 is_new_high_score = True
             else:
+                play_ui_sound("game_over")
                 game_state = "game_over"
                 is_new_high_score = False
         

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎯 CSS Stickman Shooting Gallery</title>
+    <link rel="stylesheet" href="stickman.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .game-container {
+            position: relative;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+        
+        canvas {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 70%, #98FB98 100%);
+            cursor: crosshair;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            display: block;
+        }
+        
+        /* Stickman CSS Integration */
+        .stickman-container {
+            position: absolute;
+            top: 13px;
+            left: 13px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        /* Override stickman.css to work in our game */
+        .pack {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .runner {
+            position: absolute;
+            transform: scale(0.8); /* Make smaller for game */
+            transform-origin: center bottom;
+        }
+        
+        /* Stickman body parts styling */
+        .runner .wrap .body {
+            background: #333;
+        }
+        
+        .runner .wrap .body .arm {
+            position: relative;
+        }
+        
+        .runner .wrap .body .arm .left-hand,
+        .runner .wrap .body .arm .right-hand {
+            position: absolute;
+            width: 30px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            transform-origin: 20% 50%;
+        }
+        
+        .runner .wrap .body .arm .left-hand {
+            top: 8px;
+            left: -25px;
+        }
+        
+        .runner .wrap .body .arm .right-hand {
+            top: 8px;
+            right: -25px;
+        }
+        
+        .runner .wrap .body .arm .chest {
+            width: 16px;
+            height: 50px;
+            background: #333;
+            border-radius: 8px;
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        .runner .wrap .body .arm .chest .head {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: #333;
+            border-radius: 50%;
+        }
+        
+        .runner .wrap .body .arm .chest .head .neck {
+            position: absolute;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 10px;
+            background: #333;
+        }
+        
+        .runner .wrap .body .arm .chest .hip {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 10px;
+        }
+        
+        .runner .wrap .body .arm .chest .hip .left-leg,
+        .runner .wrap .body .arm .chest .hip .right-leg {
+            position: absolute;
+            width: 6px;
+            height: 30px;
+            background: #333;
+            border-radius: 3px;
+            transform-origin: 50% 10%;
+        }
+        
+        .runner .wrap .body .arm .chest .hip .left-leg {
+            left: 2px;
+        }
+        
+        .runner .wrap .body .arm .chest .hip .right-leg {
+            right: 2px;
+        }
+        
+        .runner .wrap .body .arm .chest .hip .left-leg .instep,
+        .runner .wrap .body .arm .chest .hip .right-leg .instep {
+            position: absolute;
+            bottom: -15px;
+            left: -6px;
+            width: 15px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            transform-origin: 40% 50%;
+        }
+        
+        .runner .wrap .body .arm .left-hand .wrist,
+        .runner .wrap .body .arm .right-hand .wrist {
+            position: absolute;
+            right: -10px;
+            top: -2px;
+            width: 15px;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            transform-origin: 20% 50%;
+        }
+        
+        .ground {
+            display: none; /* Hide ground from original */
+        }
+        
+        .controls {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .weapon-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        
+        .weapon-btn {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .weapon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .weapon-btn.active {
+            background: linear-gradient(45deg, #2ecc71, #27ae60);
+        }
+        
+        .animation-controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .anim-btn {
+            padding: 6px 12px;
+            background: linear-gradient(45deg, #9b59b6, #8e44ad);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .anim-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .anim-btn.active {
+            background: linear-gradient(45deg, #f39c12, #e67e22);
+        }
+        
+        .game-ui {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .score {
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .instructions {
+            margin-top: 10px;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <div class="weapon-buttons">
+            <button class="weapon-btn active" onclick="selectWeapon('pistol')">🔫 Pistol</button>
+            <button class="weapon-btn" onclick="selectWeapon('shotgun')">💥 Shotgun</button>
+            <button class="weapon-btn" onclick="selectWeapon('machinegun')">⚡ Machine Gun</button>
+        </div>
+        
+        <div class="animation-controls">
+            <button class="anim-btn active" onclick="setStickmanAnimation('standing')">🧍 Stand</button>
+            <button class="anim-btn" onclick="setStickmanAnimation('walking')">🚶 Walk</button>
+            <button class="anim-btn" onclick="setStickmanAnimation('running')">🏃 Run</button>
+            <button class="anim-btn" onclick="setStickmanAnimation('jumping')">🦘 Jump</button>
+            <button class="anim-btn" onclick="setStickmanAnimation('ready-fighting')">🥊 Fight</button>
+            <button class="anim-btn" onclick="setStickmanAnimation('dodging')">🤸 Dodge</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        <div class="stickman-container">
+            <div class="pack pack-1">
+                <div id="stickman" class="runner standing">
+                    <div class="wrap">
+                        <div class="body">
+                            <div class="arm">
+                                <div class="left-hand">
+                                    <div class="wrist"></div>
+                                </div>
+                                <div class="chest">
+                                    <div class="head">
+                                        <div class="neck"></div>
+                                    </div>
+                                    <div class="hip">
+                                        <div class="left-leg">
+                                            <div class="instep"></div>
+                                        </div>
+                                        <div class="right-leg">
+                                            <div class="instep"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right-hand">
+                                    <div class="wrist"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="ground"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="game-ui">
+        <div class="score">Score: <span id="scoreValue">0</span></div>
+        <div class="instructions">
+            🎯 Click to shoot! Use WASD to move. Try different animations!
+        </div>
+    </div>
+
+    <script>
+        class StickmanShootingGame {
+            constructor() {
+                this.canvas = document.getElementById('gameCanvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.stickman = document.getElementById('stickman');
+                this.stickmanContainer = document.querySelector('.stickman-container');
+                
+                this.gameState = {
+                    score: 0,
+                    weapon: 'pistol',
+                    stickmanAnimation: 'standing',
+                    position: { x: 100, y: 500 }
+                };
+                
+                this.weapons = {
+                    pistol: { damage: 1, fireRate: 300, spread: 0.1, bullets: 1 },
+                    shotgun: { damage: 2, fireRate: 800, spread: 0.3, bullets: 5 },
+                    machinegun: { damage: 1, fireRate: 100, spread: 0.2, bullets: 1 }
+                };
+                
+                this.bullets = [];
+                this.targets = [];
+                this.particles = [];
+                this.keys = {};
+                this.lastShot = 0;
+                
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.spawnTarget();
+                this.gameLoop();
+            }
+            
+            setupEventListeners() {
+                // Mouse shooting
+                this.canvas.addEventListener('click', (e) => this.shoot(e));
+                
+                // Keyboard movement
+                document.addEventListener('keydown', (e) => {
+                    this.keys[e.key.toLowerCase()] = true;
+                    this.updateMovementAnimation();
+                });
+                
+                document.addEventListener('keyup', (e) => {
+                    this.keys[e.key.toLowerCase()] = false;
+                    this.updateMovementAnimation();
+                });
+            }
+            
+            updateMovementAnimation() {
+                const isMoving = this.keys['w'] || this.keys['a'] || this.keys['s'] || this.keys['d'];
+                
+                if (isMoving && this.gameState.stickmanAnimation === 'standing') {
+                    this.setStickmanAnimation('walking');
+                } else if (!isMoving && 
+                    (this.gameState.stickmanAnimation === 'walking' || this.gameState.stickmanAnimation === 'running')) {
+                    this.setStickmanAnimation('standing');
+                }
+            }
+            
+            setStickmanAnimation(animation) {
+                this.gameState.stickmanAnimation = animation;
+                this.stickman.className = `runner ${animation}`;
+                
+                // Update button states
+                document.querySelectorAll('.anim-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            shoot(e) {
+                const now = Date.now();
+                const weapon = this.weapons[this.gameState.weapon];
+                
+                if (now - this.lastShot < weapon.fireRate) return;
+                this.lastShot = now;
+                
+                const rect = this.canvas.getBoundingClientRect();
+                const targetX = e.clientX - rect.left;
+                const targetY = e.clientY - rect.top;
+                
+                // Trigger fighting animation briefly
+                this.setStickmanAnimation('ready-fighting');
+                setTimeout(() => {
+                    if (this.gameState.stickmanAnimation === 'ready-fighting') {
+                        this.setStickmanAnimation('standing');
+                    }
+                }, 500);
+                
+                // Create bullets
+                for (let i = 0; i < weapon.bullets; i++) {
+                    const angle = Math.atan2(targetY - this.gameState.position.y, targetX - this.gameState.position.x);
+                    const spread = (Math.random() - 0.5) * weapon.spread;
+                    
+                    this.bullets.push({
+                        x: this.gameState.position.x,
+                        y: this.gameState.position.y,
+                        vx: Math.cos(angle + spread) * 8,
+                        vy: Math.sin(angle + spread) * 8,
+                        damage: weapon.damage
+                    });
+                }
+            }
+            
+            updatePosition() {
+                const speed = 3;
+                let moved = false;
+                
+                if (this.keys['a'] || this.keys['arrowleft']) {
+                    this.gameState.position.x = Math.max(20, this.gameState.position.x - speed);
+                    moved = true;
+                }
+                if (this.keys['d'] || this.keys['arrowright']) {
+                    this.gameState.position.x = Math.min(this.canvas.width - 20, this.gameState.position.x + speed);
+                    moved = true;
+                }
+                if (this.keys['w'] || this.keys['arrowup']) {
+                    this.gameState.position.y = Math.max(20, this.gameState.position.y - speed);
+                    moved = true;
+                }
+                if (this.keys['s'] || this.keys['arrowdown']) {
+                    this.gameState.position.y = Math.min(this.canvas.height - 20, this.gameState.position.y + speed);
+                    moved = true;
+                }
+                
+                // Update stickman visual position
+                this.stickmanContainer.style.left = (this.gameState.position.x - 30) + 'px';
+                this.stickmanContainer.style.top = (this.gameState.position.y - 60) + 'px';
+            }
+            
+            spawnTarget() {
+                const target = {
+                    x: Math.random() * (this.canvas.width - 60) + 30,
+                    y: Math.random() * (this.canvas.height - 60) + 30,
+                    size: 20,
+                    health: 3
+                };
+                this.targets.push(target);
+                
+                // Spawn next target
+                setTimeout(() => this.spawnTarget(), 2000 + Math.random() * 3000);
+            }
+            
+            update() {
+                this.updatePosition();
+                
+                // Update bullets
+                this.bullets = this.bullets.filter(bullet => {
+                    bullet.x += bullet.vx;
+                    bullet.y += bullet.vy;
+                    
+                    // Remove if off screen
+                    return bullet.x > 0 && bullet.x < this.canvas.width && 
+                           bullet.y > 0 && bullet.y < this.canvas.height;
+                });
+                
+                // Check bullet-target collisions
+                this.bullets.forEach((bullet, bulletIndex) => {
+                    this.targets.forEach((target, targetIndex) => {
+                        const dx = bullet.x - target.x;
+                        const dy = bullet.y - target.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < target.size) {
+                            target.health -= bullet.damage;
+                            this.bullets.splice(bulletIndex, 1);
+                            
+                            // Create hit particles
+                            for (let i = 0; i < 5; i++) {
+                                this.particles.push({
+                                    x: target.x,
+                                    y: target.y,
+                                    vx: (Math.random() - 0.5) * 6,
+                                    vy: (Math.random() - 0.5) * 6,
+                                    life: 30,
+                                    color: `hsl(${Math.random() * 60}, 70%, 60%)`
+                                });
+                            }
+                            
+                            if (target.health <= 0) {
+                                this.gameState.score += 10;
+                                this.targets.splice(targetIndex, 1);
+                                document.getElementById('scoreValue').textContent = this.gameState.score;
+                            }
+                        }
+                    });
+                });
+                
+                // Update particles
+                this.particles = this.particles.filter(particle => {
+                    particle.x += particle.vx;
+                    particle.y += particle.vy;
+                    particle.life--;
+                    return particle.life > 0;
+                });
+            }
+            
+            render() {
+                // Clear canvas
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw targets
+                this.targets.forEach(target => {
+                    this.ctx.fillStyle = `hsl(${120 - target.health * 30}, 70%, 50%)`;
+                    this.ctx.beginPath();
+                    this.ctx.arc(target.x, target.y, target.size, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    // Health indicator
+                    this.ctx.fillStyle = 'white';
+                    this.ctx.font = '14px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText(target.health, target.x, target.y + 5);
+                });
+                
+                // Draw bullets
+                this.ctx.fillStyle = '#FFD700';
+                this.bullets.forEach(bullet => {
+                    this.ctx.beginPath();
+                    this.ctx.arc(bullet.x, bullet.y, 3, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+                
+                // Draw particles
+                this.particles.forEach(particle => {
+                    this.ctx.fillStyle = particle.color;
+                    this.ctx.globalAlpha = particle.life / 30;
+                    this.ctx.beginPath();
+                    this.ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+                    this.ctx.fill();
+                });
+                this.ctx.globalAlpha = 1;
+            }
+            
+            gameLoop() {
+                this.update();
+                this.render();
+                requestAnimationFrame(() => this.gameLoop());
+            }
+        }
+        
+        // Global functions for UI
+        function selectWeapon(weapon) {
+            game.gameState.weapon = weapon;
+            document.querySelectorAll('.weapon-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+        
+        function setStickmanAnimation(animation) {
+            game.setStickmanAnimation(animation);
+        }
+        
+        // Start the game
+        const game = new StickmanShootingGame();
+    </script>
+</body>
+</html> 

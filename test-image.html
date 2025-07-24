@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Stickman Image</title>
+    <style>
+        body {
+            background: #f0f0f0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        
+        .test-container {
+            text-align: center;
+        }
+        
+        .image-test {
+            border: 2px solid red;
+            margin: 20px;
+            display: inline-block;
+        }
+        
+        .single-frame {
+            width: 120px;
+            height: 80px;
+            background-image: url('./crawling.png');
+            background-repeat: no-repeat;
+            background-position: 0px 0px;
+            border: 1px solid blue;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔍 Testing Stickman Image</h1>
+        
+        <div>
+            <h3>Full Image (should show your 6-frame sprite sheet):</h3>
+            <img src="./crawling.png" alt="Crawling Sprite" class="image-test" 
+                 onload="showImageInfo(this)" onerror="showError()">
+        </div>
+        
+        <div>
+            <h3>Single Frame Test (120px × 80px window):</h3>
+            <div class="single-frame"></div>
+        </div>
+        
+        <div id="info"></div>
+    </div>
+
+    <script>
+        function showImageInfo(img) {
+            document.getElementById('info').innerHTML = `
+                <h3>✅ Image Loaded Successfully!</h3>
+                <p><strong>Dimensions:</strong> ${img.naturalWidth} × ${img.naturalHeight} pixels</p>
+                <p><strong>Frame Width:</strong> ${img.naturalWidth / 6} pixels (assuming 6 frames)</p>
+                <p><strong>Frame Height:</strong> ${img.naturalHeight} pixels</p>
+            `;
+        }
+        
+                 function showError() {
+             document.getElementById('info').innerHTML = `
+                 <h3>❌ Image Failed to Load</h3>
+                 <p>The file 'crawling.png' could not be found.</p>
+                 <p>Make sure the image is in the same folder as this HTML file.</p>
+             `;
+         }
+    </script>
+</body>
+</html> 

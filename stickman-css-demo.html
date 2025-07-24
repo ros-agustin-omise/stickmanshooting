@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎭 CSS Stickman Animation Demo</title>
+    <link rel="stylesheet" href="stickman.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .stage {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Basic stickman structure */
+        .runner {
+            position: relative;
+            transform: scale(2);
+        }
+        
+        .runner .wrap {
+            position: relative;
+        }
+        
+        .runner .wrap .body {
+            width: 20px;
+            height: 60px;
+            background: #333;
+            border-radius: 10px;
+            position: relative;
+            margin: 0 auto;
+        }
+        
+        /* Head */
+        .runner .wrap .head {
+            width: 30px;
+            height: 30px;
+            background: #333;
+            border-radius: 50%;
+            position: absolute;
+            top: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        /* Arms */
+        .runner .wrap .body .arm {
+            position: absolute;
+            top: 10px;
+            width: 40px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            transform-origin: 15% 50%;
+        }
+        
+        .runner .wrap .body .arm.left-hand {
+            left: -30px;
+        }
+        
+        .runner .wrap .body .arm.right-hand {
+            right: -30px;
+        }
+        
+        .runner .wrap .body .arm .wrist {
+            position: absolute;
+            right: -15px;
+            top: -4px;
+            width: 25px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            transform-origin: 20% 50%;
+        }
+        
+        /* Legs */
+        .runner .wrap .body .hip {
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .runner .wrap .body .hip .leg {
+            position: absolute;
+            width: 8px;
+            height: 40px;
+            background: #333;
+            border-radius: 4px;
+            transform-origin: 50% 10%;
+        }
+        
+        .runner .wrap .body .hip .left-leg {
+            left: -15px;
+        }
+        
+        .runner .wrap .body .hip .right-leg {
+            right: -15px;
+        }
+        
+        .runner .wrap .body .hip .leg .instep {
+            position: absolute;
+            bottom: -20px;
+            left: -8px;
+            width: 20px;
+            height: 8px;
+            background: #333;
+            border-radius: 4px;
+            transform-origin: 40% 50%;
+        }
+        
+        /* Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .controls button {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+        
+        .controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+        
+        .controls button.active {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        }
+        
+        .info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            backdrop-filter: blur(10px);
+        }
+        
+        .code-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            text-align: left;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎭 CSS Stickman Animation Showcase</h1>
+        <p>This demonstrates professional stickman animations using pure CSS transforms!</p>
+        
+        <div class="stage">
+            <div class="runner standing" id="stickman">
+                <div class="wrap">
+                    <div class="head"></div>
+                    <div class="body">
+                        <div class="arm left-hand">
+                            <div class="wrist"></div>
+                        </div>
+                        <div class="arm right-hand">
+                            <div class="wrist"></div>
+                        </div>
+                        <div class="hip">
+                            <div class="leg left-leg">
+                                <div class="instep"></div>
+                            </div>
+                            <div class="leg right-leg">
+                                <div class="instep"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button onclick="setAnimation('standing')" class="active">🧍 Standing</button>
+            <button onclick="setAnimation('walking')">🚶 Walking</button>
+            <button onclick="setAnimation('running')">🏃 Running</button>
+            <button onclick="setAnimation('jumping')">🦘 Jumping</button>
+            <button onclick="setAnimation('ready-fighting')">🥊 Fighting</button>
+            <button onclick="setAnimation('dodging')">🤸 Dodging</button>
+            <button onclick="setAnimation('bowing')">🙇 Bowing</button>
+            <button onclick="setAnimation('high-kicking')">🦵 Kicking</button>
+        </div>
+        
+        <div class="info">
+            <h3>🎯 How to Integrate This:</h3>
+            <div class="code-display" id="codeDisplay">
+// JavaScript to change animations
+const stickman = document.getElementById('stickman');
+stickman.className = 'runner standing'; // Changes to standing pose
+stickman.className = 'runner running';  // Changes to running
+            </div>
+            
+            <h3>✨ Benefits of CSS Animations:</h3>
+            <ul style="text-align: left; max-width: 600px; margin: 0 auto;">
+                <li>🚀 <strong>Smooth & Fluid:</strong> Much more realistic than sprite sheets</li>
+                <li>🎨 <strong>Customizable:</strong> Easy to modify colors, size, speed</li>
+                <li>📱 <strong>Responsive:</strong> Scales perfectly on any device</li>
+                <li>⚡ <strong>Performance:</strong> Hardware accelerated CSS transforms</li>
+                <li>🎮 <strong>Interactive:</strong> Can respond to game events instantly</li>
+            </ul>
+        </div>
+        
+        <div class="info">
+            <h3>🔧 Integration with Your Game:</h3>
+            <p>Replace your sprite animations with these CSS classes for much more dynamic character movement!</p>
+        </div>
+    </div>
+
+    <script>
+        let currentAnimation = 'standing';
+        
+        function setAnimation(animationType) {
+            const stickman = document.getElementById('stickman');
+            const buttons = document.querySelectorAll('.controls button');
+            
+            // Remove active class from all buttons
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Change stickman animation
+            stickman.className = `runner ${animationType}`;
+            currentAnimation = animationType;
+            
+            // Update code display
+            updateCodeDisplay(animationType);
+        }
+        
+        function updateCodeDisplay(animationType) {
+            const codeDisplay = document.getElementById('codeDisplay');
+            const animationNames = {
+                'standing': 'Standing (idle breathing)',
+                'walking': 'Walking (controlled pace)',
+                'running': 'Running (fast movement)',
+                'jumping': 'Jumping (aerial motion)',
+                'ready-fighting': 'Fighting Stance (combat ready)',
+                'dodging': 'Dodging (evasive movement)',
+                'bowing': 'Bowing (ceremonial pose)',
+                'high-kicking': 'High Kick (martial arts)'
+            };
+            
+            codeDisplay.innerHTML = `// ${animationNames[animationType]}
+const stickman = document.getElementById('stickman');
+stickman.className = 'runner ${animationType}';
+
+// In your game, you could trigger this based on:
+// - Player input (WASD keys)
+// - Game state (combat mode)
+// - Character actions (dodging bullets)`;
+        }
+        
+        // Initialize
+        updateCodeDisplay('standing');
+    </script>
+</body>
+</html> 

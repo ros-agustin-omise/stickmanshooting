@@ -217,18 +217,21 @@
                  ]
              },
              kneeling: {
-                 duration: 0.8,
-                 keyframes: [
-                     // Frame 1 - Kneeling left
-                     { head: [30, 20], body: [30, 42], armL: [18, 38], armR: [42, 36], legL: [22, 52], legR: [38, 48] },
-                     // Frame 2 - Mid kneel
-                     { head: [30, 19], body: [30, 41], armL: [20, 40], armR: [40, 38], legL: [20, 54], legR: [40, 46] },
-                     // Frame 3 - Kneeling right
-                     { head: [30, 20], body: [30, 42], armL: [42, 36], armR: [18, 38], legL: [38, 48], legR: [22, 52] },
-                     // Frame 4 - Back to center
-                     { head: [30, 19], body: [30, 41], armL: [20, 40], armR: [40, 38], legL: [20, 54], legR: [40, 46] }
-                 ]
-             },
+                duration: 1.0,
+                keyframes: [
+                    // Frame 1 - Standing upright
+                    { head: [30, 15], body: [25, 40], armL: [20, 38], armR: [30, 38], legL: [25, 55], legR: [25, 55] },
+
+                    // Frame 2 - Starting to kneel (right leg bends back)
+                    { head: [30, 18], body: [25, 43], armL: [22, 40], armR: [28, 40], legL: [24, 58], legR: [28, 50] },
+
+                    // Frame 3 - Full kneel (right leg bent fully under body)
+                    { head: [30, 20], body: [25, 46], armL: [24, 42], armR: [26, 42], legL: [26, 60], legR: [30, 50] },
+
+                    // Frame 4 - Stay kneeling
+                    { head: [30, 20], body: [25, 46], armL: [24, 42], armR: [26, 42], legL: [26, 60], legR: [30, 50] }
+                ]
+            },
              crawling: {
                  duration: 1.0,
                  keyframes: [
@@ -288,44 +291,140 @@
                  this.element = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                  this.element.classList.add('stickman-svg');
                  this.element.setAttribute('viewBox', '0 0 100 120');
-                 this.element.setAttribute('width', '60');
-                 this.element.setAttribute('height', '80');
-                 
-                 // Body color based on health
-                 const healthPercent = this.health / this.maxHealth;
-                 let color = '#2c3e50';
-                 if (healthPercent <= 0.66 && healthPercent > 0.33) color = '#e67e22';
-                 else if (healthPercent <= 0.33) color = '#c0392b';
+                 this.element.setAttribute('width', '120'); // Double the size
+                 this.element.setAttribute('height', '160'); // Double the size
                  
                  this.element.innerHTML = `
-                     <g stroke="${color}" stroke-width="5" fill="none" stroke-linecap="round">
-                         <!-- Mature head - slightly larger -->
-                         <circle id="head" cx="50" cy="15" r="12"/>
+                     <!-- 3D Cartoon Character: with gradients and shadows -->
+                     <defs>
+                         <!-- 3D Gradients for depth and lighting -->
+                         <radialGradient id="headGradient" cx="0.3" cy="0.3" r="0.8">
+                             <stop offset="0%" stop-color="#FFD4CC"/>
+                             <stop offset="70%" stop-color="#FDBCB4"/>
+                             <stop offset="100%" stop-color="#E09982"/>
+                         </radialGradient>
+                         <radialGradient id="bodyGradient" cx="0.3" cy="0.2" r="0.9">
+                             <stop offset="0%" stop-color="#FF8A5B"/>
+                             <stop offset="60%" stop-color="#FF6B35"/>
+                             <stop offset="100%" stop-color="#E55A2B"/>
+                         </radialGradient>
+                         <radialGradient id="armGradient" cx="0.3" cy="0.3" r="0.8">
+                             <stop offset="0%" stop-color="#FFD4CC"/>
+                             <stop offset="70%" stop-color="#FDBCB4"/>
+                             <stop offset="100%" stop-color="#E09982"/>
+                         </radialGradient>
+                         <radialGradient id="legGradient" cx="0.3" cy="0.2" r="0.9">
+                             <stop offset="0%" stop-color="#5A7FFF"/>
+                             <stop offset="60%" stop-color="#4169E1"/>
+                             <stop offset="100%" stop-color="#2F4F8F"/>
+                         </radialGradient>
+                         <radialGradient id="shoeGradient" cx="0.3" cy="0.3" r="0.8">
+                             <stop offset="0%" stop-color="#FFFFFF"/>
+                             <stop offset="70%" stop-color="#F0F0F0"/>
+                             <stop offset="100%" stop-color="#CCCCCC"/>
+                         </radialGradient>
+                         <radialGradient id="hairGradient" cx="0.3" cy="0.2" r="0.9">
+                             <stop offset="0%" stop-color="#A0693D"/>
+                             <stop offset="60%" stop-color="#8B4513"/>
+                             <stop offset="100%" stop-color="#654321"/>
+                         </radialGradient>
                          
-                         <!-- Stronger body -->
-                         <line id="body" x1="50" y1="27" x2="50" y2="65"/>
+                         <!-- Drop shadow filter -->
+                         <filter id="dropShadow" x="-50%" y="-50%" width="200%" height="200%">
+                             <feDropShadow dx="2" dy="3" stdDeviation="2" flood-color="#000000" flood-opacity="0.3"/>
+                         </filter>
+                     </defs>
+                     
+                     <g stroke-linecap="round" stroke-linejoin="round">
+                         <!-- Head/Face with 3D gradient and shadow -->
+                         <circle id="head" cx="50" cy="14" r="8" fill="url(#headGradient)" stroke="#E09982" stroke-width="1" filter="url(#dropShadow)"/>
                          
-                         <!-- Left arm with elbow -->
-                         <line id="armL1" x1="50" y1="35" x2="38" y2="45"/>
-                         <line id="armL2" x1="38" y1="45" x2="30" y2="58"/>
+                         <!-- Head highlight for 3D effect -->
+                         <ellipse cx="47" cy="11" rx="3" ry="4" fill="rgba(255,255,255,0.4)" stroke="none"/>
                          
-                         <!-- Right arm with elbow -->
-                         <line id="armR1" x1="50" y1="35" x2="62" y2="45"/>
-                         <line id="armR2" x1="62" y1="45" x2="70" y2="58"/>
+                         <!-- Hair with 3D gradient -->
+                         <ellipse cx="50" cy="8" rx="9" ry="4" fill="url(#hairGradient)" stroke="#654321" stroke-width="1" filter="url(#dropShadow)"/>
+                         <ellipse cx="42" cy="10" rx="2" ry="3" fill="url(#hairGradient)" stroke="none"/>
+                         <ellipse cx="58" cy="10" rx="2" ry="3" fill="url(#hairGradient)" stroke="none"/>
                          
-                         <!-- Left leg with knee -->
-                         <line id="legL1" x1="50" y1="65" x2="45" y2="80"/>
-                         <line id="legL2" x1="45" y1="80" x2="40" y2="95"/>
+                         <!-- Hair highlights -->
+                         <ellipse cx="47" cy="6" rx="4" ry="1.5" fill="rgba(255,255,255,0.2)" stroke="none"/>
                          
-                         <!-- Right leg with knee -->
-                         <line id="legR1" x1="50" y1="65" x2="55" y2="80"/>
-                         <line id="legR2" x1="55" y1="80" x2="60" y2="95"/>
+                         <!-- Eyes with depth -->
+                         <ellipse cx="47" cy="12" rx="1.8" ry="2.2" fill="#FFFFFF" stroke="#999999" stroke-width="0.3"/>
+                         <ellipse cx="53" cy="12" rx="1.8" ry="2.2" fill="#FFFFFF" stroke="#999999" stroke-width="0.3"/>
+                         <ellipse cx="47" cy="12.2" rx="1.2" ry="1.5" fill="#000000" stroke="none"/>
+                         <ellipse cx="53" cy="12.2" rx="1.2" ry="1.5" fill="#000000" stroke="none"/>
+                         <!-- Eye shine enhanced -->
+                         <ellipse cx="47.5" cy="11.3" rx="0.6" ry="0.9" fill="rgba(255,255,255,0.9)" stroke="none"/>
+                         <ellipse cx="53.5" cy="11.3" rx="0.6" ry="0.9" fill="rgba(255,255,255,0.9)" stroke="none"/>
                          
-                         <!-- Left foot -->
-                         <ellipse id="footL" cx="40" cy="98" rx="8" ry="4" fill="${color}"/>
+                         <!-- 3D Mouth -->
+                         <ellipse cx="50" cy="16.2" rx="1.8" ry="1" fill="#DD2222" stroke="#CC0000" stroke-width="0.5" filter="url(#dropShadow)"/>
+                         <ellipse cx="49.5" cy="15.8" rx="1" ry="0.5" fill="rgba(255,100,100,0.6)" stroke="none"/>
                          
-                         <!-- Right foot -->
-                         <ellipse id="footR" cx="60" cy="98" rx="8" ry="4" fill="${color}"/>
+                         <!-- 3D Shirt (body) -->
+                         <ellipse id="body" cx="50" cy="31" rx="6" ry="12" fill="url(#bodyGradient)" stroke="#E55A2B" stroke-width="1" filter="url(#dropShadow)"/>
+                         <!-- Body highlight -->
+                         <ellipse cx="47" cy="26" rx="3" ry="8" fill="rgba(255,255,255,0.25)" stroke="none"/>
+                         
+                         <!-- 3D Shirt collar -->
+                         <ellipse cx="50" cy="21" rx="4" ry="2" fill="#CC5429" stroke="#A04220" stroke-width="0.5"/>
+                         <ellipse cx="49" cy="20.5" rx="2" ry="1" fill="rgba(255,255,255,0.3)" stroke="none"/>
+                         
+                         <!-- 3D Shirt buttons -->
+                         <circle cx="50" cy="26" r="1" fill="#AA3A1F" stroke="#883015" stroke-width="0.3"/>
+                         <circle cx="49.5" cy="25.5" r="0.4" fill="rgba(255,255,255,0.5)" stroke="none"/>
+                         <circle cx="50" cy="30" r="1" fill="#AA3A1F" stroke="#883015" stroke-width="0.3"/>
+                         <circle cx="49.5" cy="29.5" r="0.4" fill="rgba(255,255,255,0.5)" stroke="none"/>
+                         <circle cx="50" cy="34" r="1" fill="#AA3A1F" stroke="#883015" stroke-width="0.3"/>
+                         <circle cx="49.5" cy="33.5" r="0.4" fill="rgba(255,255,255,0.5)" stroke="none"/>
+                         
+                         <!-- 3D Left Arm -->
+                         <ellipse id="armL1" cx="39" cy="27" rx="3" ry="8" fill="url(#bodyGradient)" stroke="#E55A2B" stroke-width="1" transform="rotate(-15 39 27)" filter="url(#dropShadow)"/>
+                         <ellipse id="armL2" cx="33" cy="36" rx="2.5" ry="6" fill="url(#armGradient)" stroke="#E09982" stroke-width="1" transform="rotate(-10 33 36)" filter="url(#dropShadow)"/>
+                         <circle id="handL" cx="30" cy="42" r="2.5" fill="url(#armGradient)" stroke="#E09982" stroke-width="1" filter="url(#dropShadow)"/>
+                         <!-- Left hand highlight -->
+                         <ellipse cx="29" cy="41" rx="1" ry="1.5" fill="rgba(255,255,255,0.4)" stroke="none"/>
+                         
+                         <!-- 3D Right Arm -->
+                         <ellipse id="armR1" cx="61" cy="27" rx="3" ry="8" fill="url(#bodyGradient)" stroke="#E55A2B" stroke-width="1" transform="rotate(15 61 27)" filter="url(#dropShadow)"/>
+                         <ellipse id="armR2" cx="67" cy="36" rx="2.5" ry="6" fill="url(#armGradient)" stroke="#E09982" stroke-width="1" transform="rotate(10 67 36)" filter="url(#dropShadow)"/>
+                         <circle id="handR" cx="70" cy="42" r="2.5" fill="url(#armGradient)" stroke="#E09982" stroke-width="1" filter="url(#dropShadow)"/>
+                         <!-- Right hand highlight -->
+                         <ellipse cx="69" cy="41" rx="1" ry="1.5" fill="rgba(255,255,255,0.4)" stroke="none"/>
+                         
+                         <!-- 3D Belt -->
+                         <ellipse cx="50" cy="41" rx="6" ry="1.5" fill="#8B4513" stroke="#654321" stroke-width="1" filter="url(#dropShadow)"/>
+                         <ellipse cx="49" cy="40.5" rx="4" ry="0.8" fill="rgba(255,255,255,0.2)" stroke="none"/>
+                         <ellipse cx="50" cy="41" rx="1.8" ry="1.2" fill="#FFD700" stroke="#FFA500" stroke-width="0.3"/>
+                         <ellipse cx="49.5" cy="40.5" rx="0.8" ry="0.6" fill="rgba(255,255,255,0.6)" stroke="none"/>
+                         
+                         <!-- 3D Jeans -->
+                         <ellipse id="legL1" cx="47" cy="52" rx="3" ry="10" fill="url(#legGradient)" stroke="#2F4F8F" stroke-width="1" filter="url(#dropShadow)"/>
+                         <ellipse id="legL2" cx="46" cy="66" rx="2.5" ry="7" fill="url(#legGradient)" stroke="#2F4F8F" stroke-width="1" filter="url(#dropShadow)"/>
+                         <!-- Left leg highlight -->
+                         <ellipse cx="45.5" cy="48" rx="1.5" ry="6" fill="rgba(255,255,255,0.15)" stroke="none"/>
+                         
+                         <ellipse id="legR1" cx="53" cy="52" rx="3" ry="10" fill="url(#legGradient)" stroke="#2F4F8F" stroke-width="1" filter="url(#dropShadow)"/>
+                         <ellipse id="legR2" cx="54" cy="66" rx="2.5" ry="7" fill="url(#legGradient)" stroke="#2F4F8F" stroke-width="1" filter="url(#dropShadow)"/>
+                         <!-- Right leg highlight -->
+                         <ellipse cx="51.5" cy="48" rx="1.5" ry="6" fill="rgba(255,255,255,0.15)" stroke="none"/>
+                         
+                         <!-- 3D Sneakers -->
+                         <ellipse id="footL" cx="44" cy="74" rx="4" ry="2.5" fill="url(#shoeGradient)" stroke="#CCCCCC" stroke-width="1" filter="url(#dropShadow)"/>
+                         <ellipse cx="44" cy="74" rx="4" ry="1.2" fill="#FF0000" stroke="#CC0000" stroke-width="0.3"/>
+                         <ellipse cx="42" cy="73" rx="2" ry="1" fill="rgba(255,255,255,0.5)" stroke="none"/>
+                         
+                         <ellipse id="footR" cx="56" cy="74" rx="4" ry="2.5" fill="url(#shoeGradient)" stroke="#CCCCCC" stroke-width="1" filter="url(#dropShadow)"/>
+                         <ellipse cx="56" cy="74" rx="4" ry="1.2" fill="#FF0000" stroke="#CC0000" stroke-width="0.3"/>
+                         <ellipse cx="54" cy="73" rx="2" ry="1" fill="rgba(255,255,255,0.5)" stroke="none"/>
+                         
+                         <!-- 3D Backpack straps -->
+                         <ellipse cx="45" cy="32" rx="0.8" ry="8" fill="#654321" stroke="#4A2F2F" stroke-width="0.3" filter="url(#dropShadow)"/>
+                         <ellipse cx="44.5" cy="28" rx="0.4" ry="4" fill="rgba(255,255,255,0.2)" stroke="none"/>
+                         <ellipse cx="55" cy="32" rx="0.8" ry="8" fill="#654321" stroke="#4A2F2F" stroke-width="0.3" filter="url(#dropShadow)"/>
+                         <ellipse cx="54.5" cy="28" rx="0.4" ry="4" fill="rgba(255,255,255,0.2)" stroke="none"/>
                      </g>
                      
                      <!-- Health Bar -->
@@ -390,13 +489,15 @@
              updateStickmanPose(type, progress) {
                  if (!this.element) return;
                  
-                 // Get stickman elements with joints and feet
+                 // Get game sprite elements (now using rectangles)
                  const head = this.element.querySelector('#head');
                  const body = this.element.querySelector('#body');
                  const armL1 = this.element.querySelector('#armL1');
                  const armL2 = this.element.querySelector('#armL2');
                  const armR1 = this.element.querySelector('#armR1');
                  const armR2 = this.element.querySelector('#armR2');
+                 const handL = this.element.querySelector('#handL');
+                 const handR = this.element.querySelector('#handR');
                  const legL1 = this.element.querySelector('#legL1');
                  const legL2 = this.element.querySelector('#legL2');
                  const legR1 = this.element.querySelector('#legR1');
@@ -409,171 +510,398 @@
                  const cycle = progress * 2 * Math.PI;
                  
                  if (type === 'running') {
-                     // Simple walking with joint movement
-                     const step = Math.sin(cycle) * 6; // Reduced swing for joints
-                     const armSwing = Math.sin(cycle) * 5;
-                     const headBob = Math.sin(cycle * 2) * 1;
+                     // Cartoon character running animation
+                     const step = Math.sin(cycle) * 2;
+                     const armSwing = Math.sin(cycle) * 1.5;
+                     const headBob = Math.sin(cycle * 2) * 0.5;
                      
-                     // Head with subtle bob (adjusted for larger head)
-                     head.setAttribute('cy', 15 + headBob);
+                     // Reset to front-facing view (circles use cx/cy)
+                     head.setAttribute('cx', 50);
+                     head.setAttribute('r', 8);
+                     body.setAttribute('cx', 50);
+                     body.setAttribute('rx', 6);
+                     body.setAttribute('ry', 12);
                      
-                     // Body stays straight (adjusted for larger head)
-                     body.setAttribute('y1', 27 + headBob);
-                     body.setAttribute('y2', 65);
+                     // Show front-facing features and hide side profile
+                     const frontEyes = this.element.querySelectorAll('ellipse[cx="47"], ellipse[cx="53"]');
+                     const eyeShines = this.element.querySelectorAll('ellipse[cx="47.5"], ellipse[cx="53.5"]');
+                     const frontMouth = this.element.querySelector('ellipse[cx="50"][cy="16"]');
+                     frontEyes.forEach(eye => eye.style.display = 'block');
+                     eyeShines.forEach(shine => shine.style.display = 'block');
+                     if (frontMouth) frontMouth.style.display = 'block';
                      
-                     // Left arm swing (shoulder to elbow, elbow to hand)
+                     const sideFeatures = this.element.querySelectorAll('#sideEye, #sideNose, #sideMouth');
+                     sideFeatures.forEach(feature => feature.style.display = 'none');
+                     
+                     // Show front-facing shirt details and hide side profile shirt
+                     const frontShirtElements = this.element.querySelectorAll('ellipse[cx="50"][cy="21"], circle[cx="50"][cy="26"], circle[cx="50"][cy="30"], circle[cx="50"][cy="34"]');
+                     frontShirtElements.forEach(el => el.style.display = 'block');
+                     
+                     const sideShirtElements = this.element.querySelectorAll('#sideShirtCollar, #sideShirtLine');
+                     sideShirtElements.forEach(el => el.style.display = 'none');
+                     
+                     // Hide top-down shirt elements
+                     const topShirtElements = this.element.querySelectorAll('#topShirtPattern, #topShirtSeam');
+                     topShirtElements.forEach(el => el.style.display = 'none');
+                     
+                     // Reset arm dimensions (ellipses use rx/ry)
+                     armL1.setAttribute('rx', 3);
+                     armL1.setAttribute('ry', 8);
+                     armL2.setAttribute('rx', 2.5);
+                     armL2.setAttribute('ry', 6);
+                     handL.setAttribute('r', 2.5);
+                     armR1.setAttribute('rx', 3);
+                     armR1.setAttribute('ry', 8);
+                     armR2.setAttribute('rx', 2.5);
+                     armR2.setAttribute('ry', 6);
+                     handR.setAttribute('r', 2.5);
+                     
+                     // Reset leg dimensions
+                     legL1.setAttribute('rx', 3);
+                     legL1.setAttribute('ry', 10);
+                     legL2.setAttribute('rx', 2.5);
+                     legL2.setAttribute('ry', 7);
+                     legR1.setAttribute('rx', 3);
+                     legR1.setAttribute('ry', 10);
+                     legR2.setAttribute('rx', 2.5);
+                     legR2.setAttribute('ry', 7);
+                     
+                     // Reset foot dimensions
+                     footL.setAttribute('rx', 4);
+                     footL.setAttribute('ry', 2.5);
+                     footR.setAttribute('rx', 4);
+                     footR.setAttribute('ry', 2.5);
+                     
+                     // Head with subtle bob
+                     head.setAttribute('cy', 14 + headBob);
+                     
+                     // Body stays mostly centered
+                     body.setAttribute('cy', 31 + headBob * 0.3);
+                     
+                     // Left arm swing
                      const leftArmPhase = Math.sin(cycle + Math.PI) * armSwing;
-                     armL1.setAttribute('x2', 38 + leftArmPhase * 0.8);
-                     armL1.setAttribute('y2', 45 + leftArmPhase * 0.3);
-                     armL2.setAttribute('x1', 38 + leftArmPhase * 0.8);
-                     armL2.setAttribute('y1', 45 + leftArmPhase * 0.3);
-                     armL2.setAttribute('x2', 30 + leftArmPhase);
+                     armL1.setAttribute('cx', 39 + leftArmPhase);
+                     armL2.setAttribute('cx', 33 + leftArmPhase * 1.2);
+                     handL.setAttribute('cx', 30 + leftArmPhase * 1.2);
                      
                      // Right arm swing (opposite to left)
                      const rightArmPhase = Math.sin(cycle) * armSwing;
-                     armR1.setAttribute('x2', 62 + rightArmPhase * 0.8);
-                     armR1.setAttribute('y2', 45 + rightArmPhase * 0.3);
-                     armR2.setAttribute('x1', 62 + rightArmPhase * 0.8);
-                     armR2.setAttribute('y1', 45 + rightArmPhase * 0.3);
-                     armR2.setAttribute('x2', 70 + rightArmPhase);
+                     armR1.setAttribute('cx', 61 + rightArmPhase);
+                     armR2.setAttribute('cx', 67 + rightArmPhase * 1.2);
+                     handR.setAttribute('cx', 70 + rightArmPhase * 1.2);
                      
-                     // Left leg stepping with realistic knee bending
+                     // Left leg stepping
                      const leftLegPhase = Math.sin(cycle) * step;
-                     const leftKneeBend = Math.sin(cycle) * 10; // More pronounced knee bend
-                     legL1.setAttribute('x2', 45 + leftLegPhase * 0.6);
-                     legL1.setAttribute('y2', 75 + Math.abs(leftKneeBend) * 0.8); // Higher knee lift
-                     legL2.setAttribute('x1', 45 + leftLegPhase * 0.6);
-                     legL2.setAttribute('y1', 75 + Math.abs(leftKneeBend) * 0.8);
-                     legL2.setAttribute('x2', 40 + leftLegPhase);
+                     legL1.setAttribute('cx', 47 + leftLegPhase * 0.5);
+                     legL2.setAttribute('cx', 46 + leftLegPhase * 0.7);
+                     legL2.setAttribute('cy', 66 - Math.abs(leftLegPhase) * 0.3);
                      
-                     // Right leg stepping with realistic knee bending (opposite to left)
+                     // Right leg stepping (opposite to left)
                      const rightLegPhase = Math.sin(cycle + Math.PI) * step;
-                     const rightKneeBend = Math.sin(cycle + Math.PI) * 10; // More pronounced knee bend
-                     legR1.setAttribute('x2', 55 + rightLegPhase * 0.6);
-                     legR1.setAttribute('y2', 75 + Math.abs(rightKneeBend) * 0.8); // Higher knee lift
-                     legR2.setAttribute('x1', 55 + rightLegPhase * 0.6);
-                     legR2.setAttribute('y1', 75 + Math.abs(rightKneeBend) * 0.8);
-                     legR2.setAttribute('x2', 60 + rightLegPhase);
+                     legR1.setAttribute('cx', 53 + rightLegPhase * 0.5);
+                     legR2.setAttribute('cx', 54 + rightLegPhase * 0.7);
+                     legR2.setAttribute('cy', 66 - Math.abs(rightLegPhase) * 0.3);
                      
                      // Move feet with legs
-                     footL.setAttribute('cx', 40 + leftLegPhase);
-                     footL.setAttribute('cy', 98 - Math.abs(leftLegPhase) * 0.3); // Slight foot lift
-                     footR.setAttribute('cx', 60 + rightLegPhase);  
-                     footR.setAttribute('cy', 98 - Math.abs(rightLegPhase) * 0.3); // Slight foot lift
+                     footL.setAttribute('cx', 44 + leftLegPhase * 0.7);
+                     footL.setAttribute('cy', 74 - Math.abs(leftLegPhase) * 0.1);
+                     footR.setAttribute('cx', 56 + rightLegPhase * 0.7);
+                     footR.setAttribute('cy', 74 - Math.abs(rightLegPhase) * 0.1);
                      
                  } else if (type === 'kneeling') {
-                     // Kneeling with one knee on floor, moving forward (no rotation applied)
-                     const kneeWalk = Math.sin(cycle * 0.8) * 3; // Forward knee movement
-                     const balance = Math.sin(cycle * 0.6) * 2; // Body balance sway
+                     // Kneeling cartoon pose - side view with rocking motion
+                     const breathe = Math.sin(progress * 4 * Math.PI) * 0.8; // Breathing
+                     const rock = Math.sin(progress * 2 * Math.PI) * 2.5; // Front-back rocking motion
                      
-                     // Head MUCH lower - person is kneeling so head is closer to ground
-                     head.setAttribute('cy', 35 + balance * 0.5); // Lowered from 22 to 35
+                     // Head in profile view with breathing and rocking motion
+                     head.setAttribute('cx', 48 + rock * 0.3); // Rocks with body
+                     head.setAttribute('cy', 14 + breathe);
+                     head.setAttribute('rx', 5); // Narrower for side view
+                     head.setAttribute('ry', 8);
                      
-                     // Body MUCH lower for proper kneeling posture
-                     body.setAttribute('y1', 45); // Lowered from 32 to 45
-                     body.setAttribute('y2', 80); // Lowered from 70 to 80 
-                     body.setAttribute('x1', 50 + balance * 0.3);
-                     body.setAttribute('x2', 50 + balance * 0.3);
+                     // Hide front-facing eyes, shines and mouth
+                     const frontEyes = this.element.querySelectorAll('ellipse[cx="47"], ellipse[cx="53"]');
+                     const eyeShines = this.element.querySelectorAll('ellipse[cx="47.5"], ellipse[cx="53.5"]');
+                     const frontMouth = this.element.querySelector('ellipse[cx="50"][cy="16"]');
+                     frontEyes.forEach(eye => eye.style.display = 'none');
+                     eyeShines.forEach(shine => shine.style.display = 'none');
+                     if (frontMouth) frontMouth.style.display = 'none';
                      
-                     // Arms MUCH lower - closer to ground level for balance/support
-                     armL1.setAttribute('y1', 50); // Attach to lowered body position
-                     armL1.setAttribute('x2', 42 + balance);
-                     armL1.setAttribute('y2', 60); // Lowered elbow position
-                     armL2.setAttribute('x1', 42 + balance);
-                     armL2.setAttribute('y1', 60); // Lowered elbow position
-                     armL2.setAttribute('x2', 36 + balance * 1.5); // Hand closer to ground
-                     armL2.setAttribute('y2', 75); // Hand much lower for support
+                     // Add side profile features if they don't exist
+                     if (!this.element.querySelector('#sideEye')) {
+                         const sideEye = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                         sideEye.setAttribute('id', 'sideEye');
+                         sideEye.setAttribute('cx', '50');
+                         sideEye.setAttribute('cy', '14');
+                         sideEye.setAttribute('rx', '1.2');
+                         sideEye.setAttribute('ry', '1.8');
+                         sideEye.setAttribute('fill', '#000000');
+                         this.element.querySelector('g').appendChild(sideEye);
+                         
+                         const sideNose = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                         sideNose.setAttribute('id', 'sideNose');
+                         sideNose.setAttribute('cx', '53');
+                         sideNose.setAttribute('cy', '15');
+                         sideNose.setAttribute('rx', '1');
+                         sideNose.setAttribute('ry', '0.8');
+                         sideNose.setAttribute('fill', '#E09982');
+                         this.element.querySelector('g').appendChild(sideNose);
+                         
+                         const sideMouth = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                         sideMouth.setAttribute('id', 'sideMouth');
+                         sideMouth.setAttribute('cx', '51');
+                         sideMouth.setAttribute('cy', '17');
+                         sideMouth.setAttribute('rx', '0.8');
+                         sideMouth.setAttribute('ry', '0.5');
+                         sideMouth.setAttribute('fill', '#FF4444');
+                         this.element.querySelector('g').appendChild(sideMouth);
+                     }
                      
-                     armR1.setAttribute('y1', 50); // Attach to lowered body position
-                     armR1.setAttribute('x2', 58 - balance);
-                     armR1.setAttribute('y2', 60); // Lowered elbow position
-                     armR2.setAttribute('x1', 58 - balance);
-                     armR2.setAttribute('y1', 60); // Lowered elbow position  
-                     armR2.setAttribute('x2', 64 - balance * 1.5); // Hand closer to ground
-                     armR2.setAttribute('y2', 75); // Hand much lower for support
+                     // Update side features position with breathing and rocking
+                     const sideEye = this.element.querySelector('#sideEye');
+                     const sideNose = this.element.querySelector('#sideNose');
+                     const sideMouth = this.element.querySelector('#sideMouth');
+                     if (sideEye) {
+                         sideEye.setAttribute('cx', 50 + rock * 0.3);
+                         sideEye.setAttribute('cy', 14 + breathe);
+                     }
+                     if (sideNose) {
+                         sideNose.setAttribute('cx', 53 + rock * 0.3);
+                         sideNose.setAttribute('cy', 15 + breathe);
+                     }
+                     if (sideMouth) {
+                         sideMouth.setAttribute('cx', 51 + rock * 0.3);
+                         sideMouth.setAttribute('cy', 17 + breathe);
+                     }
                      
-                     // Left leg - THE KNEELING LEG (knee walks forward/back on floor)
-                     legL1.setAttribute('x2', 48 + kneeWalk); // Thigh follows knee movement
-                     legL1.setAttribute('y2', 85); // Thigh angled down to knee
-                     legL2.setAttribute('x1', 48 + kneeWalk); // Knee position on floor
-                     legL2.setAttribute('y1', 95); // KNEE TOUCHES FLOOR - this is key!
-                     legL2.setAttribute('x2', 46 + kneeWalk); // Lower leg/foot drags behind knee
-                     legL2.setAttribute('y2', 95); // Foot also on floor level
+                     // Body in profile, rocking forward and back
+                     body.setAttribute('cx', 48 + rock * 0.4); // Rocks with whole body
+                     body.setAttribute('cy', 31 + breathe * 0.5); // Breathing movement
+                     body.setAttribute('rx', 4); // Narrower body for side view
+                     body.setAttribute('ry', 12);
                      
-                     // Right leg - SUPPORTING LEG (foot STAYS planted, knee bent but stable)
-                     legR1.setAttribute('x2', 58); // Stable thigh position - NO movement
-                     legR1.setAttribute('y2', 78); // Bent at knee - stable position
-                     legR2.setAttribute('x1', 58); // Knee position - STABLE
-                     legR2.setAttribute('y1', 78); // Knee height - stable
-                     legR2.setAttribute('x2', 62); // Foot PLANTED and STABLE on ground
-                     legR2.setAttribute('y2', 95); // Supporting foot STAYS on floor
+                     // Hide front-facing shirt details and add side profile shirt
+                     const frontShirtElements = this.element.querySelectorAll('ellipse[cx="50"][cy="21"], circle[cx="50"][cy="26"], circle[cx="50"][cy="30"], circle[cx="50"][cy="34"]');
+                     frontShirtElements.forEach(el => el.style.display = 'none');
                      
-                     // Feet positions for kneeling
-                     footL.setAttribute('cx', 46 + kneeWalk); // Left foot drags with knee
-                     footL.setAttribute('cy', 98); // On ground level
-                     footR.setAttribute('cx', 62); // Right foot STABLE - no movement
-                     footR.setAttribute('cy', 98); // On ground level
+                     // Add side profile shirt details if they don't exist
+                     if (!this.element.querySelector('#sideShirtCollar')) {
+                         const sideCollar = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                         sideCollar.setAttribute('id', 'sideShirtCollar');
+                         sideCollar.setAttribute('cx', '48');
+                         sideCollar.setAttribute('cy', '21');
+                         sideCollar.setAttribute('rx', '4');
+                         sideCollar.setAttribute('ry', '1.5');
+                         sideCollar.setAttribute('fill', '#CC5429');
+                         this.element.querySelector('g').appendChild(sideCollar);
+                         
+                         const sideShirtLine = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                         sideShirtLine.setAttribute('id', 'sideShirtLine');
+                         sideShirtLine.setAttribute('cx', '51');
+                         sideShirtLine.setAttribute('cy', '31');
+                         sideShirtLine.setAttribute('rx', '0.5');
+                         sideShirtLine.setAttribute('ry', '8');
+                         sideShirtLine.setAttribute('fill', '#CC5429');
+                         this.element.querySelector('g').appendChild(sideShirtLine);
+                     }
+                     
+                     // Update side shirt elements with breathing and rocking
+                     const sideCollar = this.element.querySelector('#sideShirtCollar');
+                     const sideShirtLine = this.element.querySelector('#sideShirtLine');
+                     if (sideCollar) {
+                         sideCollar.setAttribute('cx', 48 + rock * 0.4);
+                         sideCollar.setAttribute('cy', 21 + breathe * 0.5);
+                     }
+                     if (sideShirtLine) {
+                         sideShirtLine.setAttribute('cx', 51 + rock * 0.4);
+                         sideShirtLine.setAttribute('cy', 31 + breathe * 0.5);
+                     }
+                     
+                     // Hide top-down shirt elements
+                     const topShirtElements = this.element.querySelectorAll('#topShirtPattern, #topShirtSeam');
+                     topShirtElements.forEach(el => el.style.display = 'none');
+                     
+                     // Left arm (back arm, reaching to floor) with rocking motion
+                     armL1.setAttribute('cx', 44 + rock * 0.2);
+                     armL1.setAttribute('cy', 32 + breathe * 0.2);
+                     armL1.setAttribute('rx', 2.5); // Upper arm angled down
+                     armL1.setAttribute('ry', 8);
+                     armL2.setAttribute('cx', 38 + rock * 0.8); // Forearm extends to floor
+                     armL2.setAttribute('cy', 50 + breathe * 0.2);
+                     armL2.setAttribute('rx', 2);
+                     armL2.setAttribute('ry', 8);
+                     handL.setAttribute('cx', 32 + rock); // Hand on floor, rocks front/back
+                     handL.setAttribute('cy', 58 + breathe * 0.1); // Hand on ground level
+                     handL.setAttribute('r', 2.5);
+                     
+                     // Right arm (front arm, also reaching to floor) with rocking motion
+                     armR1.setAttribute('cx', 52 + rock * 0.2);
+                     armR1.setAttribute('cy', 32 + breathe * 0.2);
+                     armR1.setAttribute('rx', 3); // Upper arm angled down
+                     armR1.setAttribute('ry', 8);
+                     armR2.setAttribute('cx', 58 + rock * 0.8); // Forearm extends to floor
+                     armR2.setAttribute('cy', 50 + breathe * 0.2);
+                     armR2.setAttribute('rx', 2.5);
+                     armR2.setAttribute('ry', 8);
+                     handR.setAttribute('cx', 64 + rock); // Hand on floor, rocks front/back
+                     handR.setAttribute('cy', 58 + breathe * 0.1); // Hand on ground level
+                     handR.setAttribute('r', 3);
+                     
+                     // Left leg (kneeling leg, rocks with body) with breathing motion
+                     legL1.setAttribute('cx', 47 + rock * 0.3);
+                     legL1.setAttribute('cy', 54 + breathe * 0.4);
+                     legL1.setAttribute('rx', 2.5);
+                     legL1.setAttribute('ry', 12); // Longer for kneeling position
+                     legL2.setAttribute('cx', 46 + rock * 0.5); // Shin rocks more
+                     legL2.setAttribute('cy', 70 + breathe * 0.4);
+                     legL2.setAttribute('rx', 2);
+                     legL2.setAttribute('ry', 4); // Shorter shin
+                     
+                     // Right leg (forward leg, bent at knee) with rocking motion
+                     legR1.setAttribute('cx', 52 + rock * 0.3);
+                     legR1.setAttribute('cy', 48 + breathe * 0.4);
+                     legR1.setAttribute('rx', 2.5);
+                     legR1.setAttribute('ry', 10);
+                     legR2.setAttribute('cx', 56 + rock * 0.5); // Shin rocks more
+                     legR2.setAttribute('cy', 60 + breathe * 0.4);
+                     legR2.setAttribute('rx', 2);
+                     legR2.setAttribute('ry', 6);
+                     
+                     // Feet positions (side view) with rocking motion
+                     footL.setAttribute('cx', 44 + rock * 0.6); // Feet rock with legs
+                     footL.setAttribute('cy', 76 + breathe * 0.4);
+                     footL.setAttribute('rx', 3); // Narrower for side view
+                     footL.setAttribute('ry', 2);
+                     footR.setAttribute('cx', 58 + rock * 0.6); // Feet rock with legs
+                     footR.setAttribute('cy', 68 + breathe * 0.4);
+                     footR.setAttribute('rx', 4); // More visible front foot
+                     footR.setAttribute('ry', 2.5);
                      
                  } else if (type === 'crawling') {
-                     // Army crawling - head on floor, elbow movement primary (90° rotation applied by CSS)
-                     const crawlCycle = cycle * 0.5; // Slower, deliberate crawling motion
-                     const elbowPush = Math.sin(crawlCycle) * 8; // Primary elbow movement
+                     // Crawling cartoon animation - top-down view
+                     const crawlCycle = cycle * 0.5;
+                     const elbowPush = Math.sin(crawlCycle) * 1.5;
                      
-                     // HEAD ON FLOOR LEVEL - key change!
-                     head.setAttribute('cy', 85); // Much lower - almost at floor level
+                     // Head from top-down view (showing hair/top of head)
+                     head.setAttribute('cx', 50);
+                     head.setAttribute('cy', 18);
+                     head.setAttribute('r', 7); // Slightly smaller for top-down perspective
                      
-                     // Body very low, almost flat on ground
-                     body.setAttribute('y1', 88); // Body starts very low
-                     body.setAttribute('y2', 92); // Short body, close to floor
+                     // Body from top-down view (wider, flatter)
+                     body.setAttribute('cx', 50);
+                     body.setAttribute('cy', 32);
+                     body.setAttribute('rx', 8); // Wider from above
+                     body.setAttribute('ry', 10); // Shorter from top-down
                      
-                     // ARMS: Primary crawling motion - elbow walking!
+                     // Hide all facial features for top-down view
+                     const frontEyes = this.element.querySelectorAll('ellipse[cx="47"], ellipse[cx="53"]');
+                     const eyeShines = this.element.querySelectorAll('ellipse[cx="47.5"], ellipse[cx="53.5"]');
+                     const frontMouth = this.element.querySelector('ellipse[cx="50"][cy="16"]');
+                     frontEyes.forEach(eye => eye.style.display = 'none');
+                     eyeShines.forEach(shine => shine.style.display = 'none');
+                     if (frontMouth) frontMouth.style.display = 'none';
+                     
+                     const sideFeatures = this.element.querySelectorAll('#sideEye, #sideNose, #sideMouth');
+                     sideFeatures.forEach(feature => feature.style.display = 'none');
+                     
+                     // Hide shirt details and show top-down shirt view
+                     const frontShirtElements = this.element.querySelectorAll('ellipse[cx="50"][cy="21"], circle[cx="50"][cy="26"], circle[cx="50"][cy="30"], circle[cx="50"][cy="34"]');
+                     frontShirtElements.forEach(el => el.style.display = 'none');
+                     
+                     const sideShirtElements = this.element.querySelectorAll('#sideShirtCollar, #sideShirtLine');
+                     sideShirtElements.forEach(el => el.style.display = 'none');
+                     
+                     // Add top-down shirt details if they don't exist
+                     if (!this.element.querySelector('#topShirtPattern')) {
+                         const topShirtPattern = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                         topShirtPattern.setAttribute('id', 'topShirtPattern');
+                         topShirtPattern.setAttribute('cx', '50');
+                         topShirtPattern.setAttribute('cy', '28');
+                         topShirtPattern.setAttribute('rx', '6');
+                         topShirtPattern.setAttribute('ry', '3');
+                         topShirtPattern.setAttribute('fill', '#CC5429');
+                         this.element.querySelector('g').appendChild(topShirtPattern);
+                         
+                         const topShirtSeam = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
+                         topShirtSeam.setAttribute('id', 'topShirtSeam');
+                         topShirtSeam.setAttribute('cx', '50');
+                         topShirtSeam.setAttribute('cy', '35');
+                         topShirtSeam.setAttribute('rx', '7');
+                         topShirtSeam.setAttribute('ry', '1');
+                         topShirtSeam.setAttribute('fill', '#CC5429');
+                         this.element.querySelector('g').appendChild(topShirtSeam);
+                     }
+                     
+                     // Show top-down shirt elements
+                     const topShirtElements = this.element.querySelectorAll('#topShirtPattern, #topShirtSeam');
+                     topShirtElements.forEach(el => el.style.display = 'block');
+                     
+                     // Top-down arm dimensions (flatter, wider for perspective)
+                     armL1.setAttribute('rx', 6); // Wider from above
+                     armL1.setAttribute('ry', 3); // Flatter from above
+                     armL2.setAttribute('rx', 5);
+                     armL2.setAttribute('ry', 2.5);
+                     handL.setAttribute('r', 3);
+                     armR1.setAttribute('rx', 6);
+                     armR1.setAttribute('ry', 3);
+                     armR2.setAttribute('rx', 5);
+                     armR2.setAttribute('ry', 2.5);
+                     handR.setAttribute('r', 3);
+                     
+                     // Top-down leg dimensions (flatter, wider)
+                     legL1.setAttribute('rx', 5); // Wider from above
+                     legL1.setAttribute('ry', 3); // Much flatter
+                     legL2.setAttribute('rx', 4);
+                     legL2.setAttribute('ry', 2.5);
+                     legR1.setAttribute('rx', 5);
+                     legR1.setAttribute('ry', 3);
+                     legR2.setAttribute('rx', 4);
+                     legR2.setAttribute('ry', 2.5);
+                     
+                     // Top-down foot dimensions (oval, flat)
+                     footL.setAttribute('rx', 3);
+                     footL.setAttribute('ry', 5); // Longer in crawling direction
+                     footR.setAttribute('rx', 3);
+                     footR.setAttribute('ry', 5);
+                     
+                     // Arms spread out horizontally (crawling motion from above)
                      const leftElbowPhase = Math.sin(crawlCycle) * elbowPush;
                      const rightElbowPhase = Math.sin(crawlCycle + Math.PI) * elbowPush;
                      
-                     // Left arm - elbow pulls body forward
-                     armL1.setAttribute('y1', 90); // Attach to low body
-                     armL1.setAttribute('x2', 35 + leftElbowPhase * 0.6);
-                     armL1.setAttribute('y2', 88); // Elbow on ground level
-                     armL2.setAttribute('x1', 35 + leftElbowPhase * 0.6);
-                     armL2.setAttribute('y1', 88); // Elbow joint on ground
-                     armL2.setAttribute('x2', 25 + leftElbowPhase); // Hand reaches forward/pulls
-                     armL2.setAttribute('y2', 85); // Hand on floor
+                     // Left arm extending outward from body
+                     armL1.setAttribute('cx', 35 + leftElbowPhase);
+                     armL1.setAttribute('cy', 28);
+                     armL2.setAttribute('cx', 28 + leftElbowPhase * 1.2);
+                     armL2.setAttribute('cy', 28);
+                     handL.setAttribute('cx', 22 + leftElbowPhase * 1.2);
+                     handL.setAttribute('cy', 28);
                      
-                     // Right arm - alternating elbow pull
-                     armR1.setAttribute('y1', 90); // Attach to low body
-                     armR1.setAttribute('x2', 65 + rightElbowPhase * 0.6);
-                     armR1.setAttribute('y2', 88); // Elbow on ground level
-                     armR2.setAttribute('x1', 65 + rightElbowPhase * 0.6);
-                     armR2.setAttribute('y1', 88); // Elbow joint on ground
-                     armR2.setAttribute('x2', 75 + rightElbowPhase); // Hand reaches forward/pulls
-                     armR2.setAttribute('y2', 85); // Hand on floor
+                     // Right arm extending outward from body
+                     armR1.setAttribute('cx', 65 + rightElbowPhase);
+                     armR1.setAttribute('cy', 28);
+                     armR2.setAttribute('cx', 72 + rightElbowPhase * 1.2);
+                     armR2.setAttribute('cy', 28);
+                     handR.setAttribute('cx', 78 + rightElbowPhase * 1.2);
+                     handR.setAttribute('cy', 28);
                      
-                     // LEGS: Passive dragging, minimal movement
-                     const legDrag = Math.sin(crawlCycle * 0.3) * 2; // Very slow leg movement
+                     // Legs spread out behind (crawling from above)
+                     const legDrag = Math.sin(crawlCycle * 0.3) * 0.8;
                      
-                     // Left leg - just dragging
-                     legL1.setAttribute('y1', 92); // Attach to low body
-                     legL1.setAttribute('x2', 48 + legDrag);
-                     legL1.setAttribute('y2', 88); // Thigh low
-                     legL2.setAttribute('x1', 48 + legDrag);
-                     legL2.setAttribute('y1', 88);
-                     legL2.setAttribute('x2', 44 + legDrag); // Foot drags
-                     legL2.setAttribute('y2', 95); // Foot on ground
+                     legL1.setAttribute('cx', 46 + legDrag);
+                     legL1.setAttribute('cy', 46);
+                     legL2.setAttribute('cx', 44 + legDrag);
+                     legL2.setAttribute('cy', 58);
                      
-                     // Right leg - just dragging
-                     legR1.setAttribute('y1', 92); // Attach to low body
-                     legR1.setAttribute('x2', 52 - legDrag);
-                     legR1.setAttribute('y2', 88); // Thigh low
-                     legR2.setAttribute('x1', 52 - legDrag);
-                     legR2.setAttribute('y1', 88);
-                     legR2.setAttribute('x2', 56 - legDrag); // Foot drags
-                     legR2.setAttribute('y2', 95); // Foot on ground
+                     legR1.setAttribute('cx', 54 - legDrag);
+                     legR1.setAttribute('cy', 46);
+                     legR2.setAttribute('cx', 56 - legDrag);
+                     legR2.setAttribute('cy', 58);
                      
-                     // Feet just drag along the floor
-                     footL.setAttribute('cx', 44 + legDrag);
-                     footL.setAttribute('cy', 98); // Feet on floor
-                     footR.setAttribute('cx', 56 - legDrag);
-                     footR.setAttribute('cy', 98); // Feet on floor
+                     // Feet trailing behind
+                     footL.setAttribute('cx', 42 + legDrag);
+                     footL.setAttribute('cy', 68);
+                     footR.setAttribute('cx', 58 - legDrag);
+                     footR.setAttribute('cy', 68);
                  }
              }
              
@@ -656,16 +984,7 @@
                      healthBar.setAttribute('width', (60 * healthPercent).toString());
                  }
                  
-                 // Update stroke color based on health
-                 const healthColor = healthPercent > 0.66 ? '#2c3e50' : 
-                                   healthPercent > 0.33 ? '#e67e22' : '#c0392b';
-                 
-                 const bodyGroup = this.element.querySelector('g');
-                 if (bodyGroup) {
-                     bodyGroup.setAttribute('stroke', healthColor);
-                 }
-                 
-                 // Update health bar color
+                 // Update health bar color (stays colorful for visibility)
                  if (healthBar) {
                      const barColor = healthPercent > 0.66 ? '#27ae60' : 
                                      healthPercent > 0.33 ? '#f39c12' : '#e74c3c';
