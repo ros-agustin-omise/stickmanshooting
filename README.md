@@ -1,163 +1,77 @@
-# 🎯 Stickman Shooting Gallery
+# Stickman Shooting Gallery
 
-A fun and engaging shooting gallery game built with Python and Pygame, featuring animated stickman targets, multiple weapon types, and a high score system.
+A collection of stickman animations and shooting gallery games in both Python and Web versions.
 
-![Game Screenshot](gameplay_preview.png)
-*Screenshot of the game in action*
+## Project Structure
 
-## 🎮 Features
+This repository is organized into two main folders:
 
-### Multiple Weapon Types
-- **Pistol** - Accurate single shots with moderate damage
-- **Shotgun** - Spread shots perfect for close-range targets  
-- **Rifle** - High precision sniper shots with maximum damage
-- **Machine Gun** - Rapid fire with lower accuracy
+### 🐍 [`python/`](./python/) - Python Version
+The complete shooting gallery game built with Pygame, featuring:
+- Professional shooting gallery with 4 weapons
+- Real gun sound effects (uses your provided .mp3 files)
+- Moving targets and particle effects
+- High score system
 
-### Dynamic Targets
-- **Stationary Stickmen** - Standard targets that appear and disappear
-- **Running Stickmen** - Moving targets that run across the screen
-- **Health System** - Targets with multiple hit points and visual damage states
-- **Multiple Poses** - Standing, kneeling, and crawling stickman animations
-
-### Game Features
-- ⏱️ **60-second timed gameplay**
-- 🏆 **High score system with persistent leaderboard**
-- 👤 **Player name entry for high scores**
-- 🎨 **Particle effects and animations**
-- 🎯 **Different crosshairs for each weapon type**
-- 📈 **Progressive difficulty**
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Python 3.6 or higher
-- Pygame library
-
-### Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/stickman-shooting-gallery.git
-   cd stickman-shooting-gallery
-   ```
-
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run the game**
-   ```bash
-   python shooting_gallery2.py
-   ```
-
-## 🎮 How to Play
-
-### Controls
-- **Mouse** - Aim your crosshair
-- **Left Click** - Shoot
-- **1-4 Keys** - Switch between weapons
-- **Enter** - Confirm name entry (high score)
-- **Backspace** - Delete characters (name entry)
-
-### Gameplay
-1. Select your weapon using keys 1-4
-2. Click "Start" to begin the game
-3. Aim with your mouse and left-click to shoot
-4. Hit as many targets as possible within 60 seconds
-5. Earn bonus points for moving targets
-6. Enter your name if you achieve a high score!
-
-### Scoring
-- **Stationary Target Kill**: 10 points
-- **Running Target Kill**: 20 points  
-- **Partial Damage**: 2 points per hit
-
-## 🔧 System Requirements
-
-- **Operating System**: Windows, macOS, or Linux
-- **Python**: 3.6+
-- **RAM**: 512MB minimum
-- **Storage**: 50MB free space
-
-## 📁 Project Structure
-
-```
-stickman-shooting-gallery/
-├── shooting_gallery2.py    # Main game file
-├── running.py              # Simple running stickman demo
-├── requirements.txt        # Python dependencies
-├── README.md              # This file
-├── highscores.json        # High scores data (created automatically)
-└── screenshots/           # Game screenshots
+**Quick Start:**
+```bash
+cd python/
+pip3 install -r requirements.txt
+python3 shooting_gallery2.py
 ```
 
-## 🎯 Weapon Stats
+### 🌐 [`web/`](./web/) - Web Version  
+HTML/CSS/JavaScript implementations with multiple demos:
+- Interactive stickman animations
+- Web-based shooting games
+- CSS animation library
+- React/TypeScript advanced editor
 
-| Weapon | Fire Rate | Accuracy | Damage | Special |
-|--------|-----------|----------|---------|---------|
-| Pistol | ●●● | ●●●●● | ●● | Balanced |
-| Shotgun | ● | ●● | ●● | Multiple pellets |
-| Rifle | ●● | ●●●●● | ●●●● | High damage |
-| Machine Gun | ●●●●● | ●● | ● | Rapid fire |
+**Quick Start:**
+```bash
+cd web/
+open simple-stickman.html
+# Or run a local server for better compatibility
+```
 
-## 🏆 High Score System
+## Key Features
 
-The game automatically saves your high scores to `highscores.json`. The leaderboard displays the top 5 scores on the main menu, and the system tracks the top 10 scores overall.
+### Python Version
+- ✅ 4 realistic weapons (Pistol, Shotgun, Rifle, Machine Gun)
+- ✅ Authentic gun sounds using your .mp3 files  
+- ✅ Moving stickman targets with physics
+- ✅ Particle effects and visual feedback
+- ✅ High score tracking
+- ✅ Professional game loop and controls
 
-## 🛠️ Development
+### Web Version
+- ✅ Multiple stickman animations (wave, dance, jump, run, crawl)
+- ✅ Interactive controls (mouse + keyboard)
+- ✅ Modular CSS animation system
+- ✅ Multiple game implementations
+- ✅ Advanced React/TypeScript editor
+- ✅ Cross-browser compatibility
 
-### Built With
-- **Python 3** - Programming language
-- **Pygame** - Game development library
-- **JSON** - High score data persistence
+## Getting Started
 
-### Key Components
-- `Crosshair` class - Handles aiming and weapon-specific crosshairs
-- `StickmanTarget` class - Animated targets with health and movement
-- `Particle` class - Visual effects system
-- High score management functions
-- Multiple game states (menu, playing, game_over, enter_name)
+Choose your preferred version:
 
-## 🤝 Contributing
+1. **For Gaming**: Try the Python version for the full shooting gallery experience
+2. **For Web Development**: Explore the web version for animations and web games  
+3. **For Learning**: Both versions offer great examples of game development
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+## Additional Files
 
-## 📝 License
+- `stickman.png` - Sprite sheet for animations
+- `highscores.json` - Saved high scores (generated automatically)
+- `LICENSE` - MIT License
+- `.gitignore` - Git ignore rules
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## Requirements
 
-## 🎮 Future Enhancements
-
-- [ ] Sound effects and background music
-- [ ] Power-ups and special weapons
-- [ ] Multiple game modes
-- [ ] Network multiplayer
-- [ ] Mobile touch controls
-- [ ] Achievement system
-- [ ] Customizable targets
-
-## 🐛 Known Issues
-
-- None currently reported! Please open an issue if you find any bugs.
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-- Open an issue on GitHub
-- Check the documentation above
-- Make sure you have the required dependencies installed
-
-## 🌟 Acknowledgments
-
-- Built with Python and Pygame
-- Inspired by classic carnival shooting galleries
-- Thanks to all contributors and players!
+- **Python Version**: Python 3.x, Pygame, NumPy
+- **Web Version**: Modern web browser (Chrome, Firefox, Safari, Edge)
 
 ---
 
-**Enjoy the game and happy shooting! 🎯** 
+Happy coding and enjoy the stickman shooting gallery! 🎯 
